@@ -23,10 +23,41 @@
   "author": "Rinaldo Festa",
   "type": "module",
   "main": "dist/index.js",
-  "directories": {
-    "doc": "docs"
+  "bin": {
+    "agentdx": "dist/index.js"
   },
+  "files": [
+    "dist"
+  ],
   "scripts": {
-    "test": "vitest run"
+    "build": "tsup",
+    "dev": "tsx src/cli/index.ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint:code": "eslint . && prettier --check .",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.39.0",
+    "@clack/prompts": "^0.10.0",
+    "@modelcontextprotocol/sdk": "^1.12.1",
+    "ajv": "^8.17.1",
+    "chokidar": "^4.0.3",
+    "commander": "^13.1.0",
+    "execa": "^9.5.2",
+    "openai": "^4.86.2",
+    "yaml": "^2.7.0",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.4",
+    "prettier": "^3.5.3",
+    "tsup": "^8.4.0",
+    "tsx": "^4.19.3",
+    "typescript": "^5.7.3",
+    "vitest": "^3.0.5"
+  },
+  "engines": {
+    "node": ">=22.0.0"
   }
 }
