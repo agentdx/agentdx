@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { Command } from 'commander';
+import { registerInitCommand } from './commands/init.js';
 
 function loadPackageJson(): { version: string } {
   let dir = import.meta.dirname;
@@ -29,12 +30,7 @@ program
   .option('-v, --verbose', 'Enable verbose output')
   .option('-c, --config <path>', 'Path to agentdx.config.yaml');
 
-program
-  .command('init [project-name]')
-  .description('Scaffold a new MCP server project')
-  .action((_name: string | undefined) => {
-    console.log('agentdx init — not implemented yet');
-  });
+registerInitCommand(program);
 
 program
   .command('dev [entrypoint]')
