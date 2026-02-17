@@ -1,0 +1,32 @@
+{
+  "name": "agentdx",
+  "version": "0.1.0-alpha.1",
+  "description": "The MCP developer toolkit. Scaffold, lint, test, benchmark, and publish MCP servers.",
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "agent",
+    "developer-experience",
+    "cli",
+    "testing",
+    "benchmarking"
+  ],
+  "homepage": "https://github.com/agentdx/agentdx#readme",
+  "bugs": {
+    "url": "https://github.com/agentdx/agentdx/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/agentdx/agentdx.git"
+  },
+  "license": "MIT",
+  "author": "Rinaldo Festa",
+  "type": "module",
+  "main": "dist/index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "vitest run"
+  }
+}

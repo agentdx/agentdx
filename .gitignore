@@ -1,0 +1,23 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Environment & secrets
+.npmrc
+.env
+.env.*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Archives
+*.tar.gz
+
+# Logs
+*.log
+
+# Test / coverage
+coverage/
