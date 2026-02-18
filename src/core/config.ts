@@ -41,7 +41,7 @@ const DEFAULT_CONFIG: ResolvedConfig = {
   },
   bench: {
     provider: 'anthropic',
-    model: 'claude-sonnet-4-5-20250514',
+    model: 'claude-sonnet-4-5-20250929',
     scenarios: 'auto',
     runs: 3,
     temperature: 0,

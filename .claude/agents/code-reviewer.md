@@ -4,7 +4,7 @@
 Reviews code quality, architecture violations, and test coverage. Read-only.
 
 ## Model
-claude-sonnet-4-5-20250514
+claude-sonnet-4-5-20250929
 
 ## Instructions
 1. Check architecture boundaries:

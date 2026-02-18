@@ -31,7 +31,7 @@ describe('AnthropicAdapter', () => {
       usage: { input_tokens: 100, output_tokens: 30 },
     };
     const client = createMockClient(mockResponse);
-    const adapter = new AnthropicAdapter('claude-sonnet-4-5-20250514', client);
+    const adapter = new AnthropicAdapter('claude-sonnet-4-5-20250929', client);
 
     const result = await adapter.chat({
       system: 'You are a helpful assistant.',
@@ -60,7 +60,7 @@ describe('AnthropicAdapter', () => {
       usage: { input_tokens: 150, output_tokens: 50 },
     };
     const client = createMockClient(mockResponse);
-    const adapter = new AnthropicAdapter('claude-sonnet-4-5-20250514', client);
+    const adapter = new AnthropicAdapter('claude-sonnet-4-5-20250929', client);
 
     const result = await adapter.chat({
       system: 'You are a helpful assistant.',
@@ -85,7 +85,7 @@ describe('AnthropicAdapter', () => {
       usage: { input_tokens: 0, output_tokens: 0 },
     };
     const client = createMockClient(mockResponse);
-    const adapter = new AnthropicAdapter('claude-sonnet-4-5-20250514', client);
+    const adapter = new AnthropicAdapter('claude-sonnet-4-5-20250929', client);
 
     await adapter.chat({
       system: 'System prompt',
@@ -97,7 +97,7 @@ describe('AnthropicAdapter', () => {
     const createFn = client!.messages.create as ReturnType<typeof vi.fn>;
     expect(createFn).toHaveBeenCalledOnce();
     const callArgs = createFn.mock.calls[0]![0];
-    expect(callArgs.model).toBe('claude-sonnet-4-5-20250514');
+    expect(callArgs.model).toBe('claude-sonnet-4-5-20250929');
     expect(callArgs.system).toBe('System prompt');
     expect(callArgs.temperature).toBe(0.5);
     expect(callArgs.max_tokens).toBe(1024);
@@ -107,7 +107,7 @@ describe('AnthropicAdapter', () => {
   });
 
   it('estimates cost for known models', () => {
-    const adapter = new AnthropicAdapter('claude-sonnet-4-5-20250514');
+    const adapter = new AnthropicAdapter('claude-sonnet-4-5-20250929');
     // 1000 input tokens at $3/M = $0.003, 500 output at $15/M = $0.0075
     const cost = adapter.estimateCost(1000, 500);
     expect(cost).toBeCloseTo(0.0105, 5);

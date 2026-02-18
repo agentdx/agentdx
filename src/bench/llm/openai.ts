@@ -50,6 +50,7 @@ export class OpenAIAdapter implements LLMAdapter {
       messages,
       tools: convertTools(params.tools),
       temperature: params.temperature,
+      ...(params.maxTokens ? { max_tokens: params.maxTokens } : {}),
     });
 
     const choice = response.choices[0];

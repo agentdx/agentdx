@@ -3,7 +3,7 @@ import { createAdapter } from '../../../src/bench/llm/adapter.js';
 
 describe('createAdapter', () => {
   it('creates an Anthropic adapter', async () => {
-    const adapter = await createAdapter('anthropic', 'claude-sonnet-4-5-20250514');
+    const adapter = await createAdapter('anthropic', 'claude-sonnet-4-5-20250929');
     expect(adapter).toBeDefined();
     expect(adapter.chat).toBeTypeOf('function');
     expect(adapter.estimateCost).toBeTypeOf('function');

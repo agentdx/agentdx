@@ -73,7 +73,7 @@ const SCENARIOS: BenchScenario[] = [
 
 const CONFIG: BenchConfig = {
   provider: 'anthropic',
-  model: 'claude-sonnet-4-5-20250514',
+  model: 'claude-sonnet-4-5-20250929',
   scenarios: 'auto',
   runs: 1,
   temperature: 0,
@@ -81,68 +81,75 @@ const CONFIG: BenchConfig = {
 };
 
 /**
- * Create a mock adapter that returns predetermined responses based on the task content.
+ * Map tasks to responses by keyword matching.
+ * Works correctly with concurrent execution since responses are based on task content, not call order.
  */
-function createMockAdapter(): LLMAdapter {
-  let callIndex = 0;
-  const scenarioResponses: LLMResponse[] = [
-    // pos-1: correct tool selection with params
-    {
-      content: "I'll check the weather in Tokyo for you.",
-      toolCalls: [{ name: 'get_weather', arguments: { city: 'Tokyo' } }],
-      inputTokens: 100,
-      outputTokens: 50,
-    },
-    // pos-2: correct tool selection with params
-    {
-      content: "Let me get the forecast for Paris.",
-      toolCalls: [{ name: 'get_forecast', arguments: { city: 'Paris' } }],
-      inputTokens: 100,
-      outputTokens: 50,
-    },
-    // ambig-1: asks for clarification
-    {
-      content: 'Could you please specify which city you want the weather for?',
-      toolCalls: [],
-      inputTokens: 80,
-      outputTokens: 30,
-    },
-    // neg-1: correct refusal
-    {
-      content: "I don't have a tool to control thermostats.",
-      toolCalls: [],
-      inputTokens: 80,
-      outputTokens: 30,
-    },
-    // multi-1: multiple tool calls
-    {
-      content: "I'll check both current weather and forecast for London.",
-      toolCalls: [
-        { name: 'get_weather', arguments: { city: 'London' } },
-        { name: 'get_forecast', arguments: { city: 'London' } },
-      ],
-      inputTokens: 120,
-      outputTokens: 60,
-    },
-  ];
-
-  // For scenario generation (first call from estimateBench)
-  const generationResponse: LLMResponse = {
-    content: JSON.stringify(SCENARIOS),
+const TASK_RESPONSES: Record<string, LLMResponse> = {
+  'Tokyo': {
+    content: "I'll check the weather in Tokyo for you.",
+    toolCalls: [{ name: 'get_weather', arguments: { city: 'Tokyo' } }],
+    inputTokens: 100,
+    outputTokens: 50,
+  },
+  'Paris': {
+    content: "Let me get the forecast for Paris.",
+    toolCalls: [{ name: 'get_forecast', arguments: { city: 'Paris' } }],
+    inputTokens: 100,
+    outputTokens: 50,
+  },
+  'going to be': {
+    content: 'Could you please specify which city you want the weather for?',
     toolCalls: [],
-    inputTokens: 200,
-    outputTokens: 400,
-  };
+    inputTokens: 80,
+    outputTokens: 30,
+  },
+  'thermostat': {
+    content: "I don't have a tool to control thermostats.",
+    toolCalls: [],
+    inputTokens: 80,
+    outputTokens: 30,
+  },
+  'London': {
+    content: "I'll check both current weather and forecast for London.",
+    toolCalls: [
+      { name: 'get_weather', arguments: { city: 'London' } },
+      { name: 'get_forecast', arguments: { city: 'London' } },
+    ],
+    inputTokens: 120,
+    outputTokens: 60,
+  },
+};
+
+const DEFAULT_RESPONSE: LLMResponse = {
+  content: 'No matching tool.',
+  toolCalls: [],
+  inputTokens: 50,
+  outputTokens: 20,
+};
+
+function createMockAdapter(): LLMAdapter {
+  let isFirstCall = true;
 
   return {
-    chat: vi.fn().mockImplementation(() => {
-      if (callIndex === 0) {
-        callIndex++;
-        return Promise.resolve(generationResponse);
+    chat: vi.fn().mockImplementation((params: { messages: Array<{ content: string }> }) => {
+      // First call from estimateBench is scenario generation
+      if (isFirstCall) {
+        isFirstCall = false;
+        return Promise.resolve({
+          content: JSON.stringify(SCENARIOS),
+          toolCalls: [],
+          inputTokens: 200,
+          outputTokens: 400,
+        } satisfies LLMResponse);
       }
-      const idx = callIndex - 1;
-      callIndex++;
-      return Promise.resolve(scenarioResponses[idx % scenarioResponses.length]!);
+
+      const task = params.messages[0]?.content ?? '';
+      for (const [keyword, response] of Object.entries(TASK_RESPONSES)) {
+        if (task.includes(keyword)) {
+          return Promise.resolve(response);
+        }
+      }
+      return Promise.resolve(DEFAULT_RESPONSE);
     }),
     estimateCost: vi.fn().mockReturnValue(0.01),
   };
@@ -229,5 +236,45 @@ describe('runBench', () => {
 
     const dims = report.score.dimensions.map((d) => d.dimension);
     expect(dims).toContain('Error Recovery');
+  });
+
+  it('runs evaluations concurrently up to concurrency limit', async () => {
+    let activeCalls = 0;
+    let maxActiveCalls = 0;
+
+    const adapter: LLMAdapter = {
+      chat: vi.fn().mockImplementation(async (params: { messages: Array<{ content: string }> }) => {
+        activeCalls++;
+        if (activeCalls > maxActiveCalls) maxActiveCalls = activeCalls;
+
+        // Simulate async delay to allow concurrency
+        await new Promise((resolve) => setTimeout(resolve, 10));
+
+        activeCalls--;
+
+        const task = params.messages[0]?.content ?? '';
+        for (const [keyword, response] of Object.entries(TASK_RESPONSES)) {
+          if (task.includes(keyword)) {
+            return response;
+          }
+        }
+        return DEFAULT_RESPONSE;
+      }),
+      estimateCost: vi.fn().mockReturnValue(0.01),
+    };
+
+    const report = await runBench(
+      TOOLS,
+      { ...CONFIG, concurrency: 3 },
+      adapter,
+      SCENARIOS,
+    );
+
+    // With 5 scenarios and concurrency 3, peak should be at most 3
+    expect(maxActiveCalls).toBeLessThanOrEqual(3);
+    // Should still have run all 5 scenarios
+    expect(report.responses).toHaveLength(5);
+    // With concurrency > 1 and async delay, should have overlapped
+    expect(maxActiveCalls).toBeGreaterThan(1);
   });
 });

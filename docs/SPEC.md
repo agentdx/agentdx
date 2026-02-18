@@ -77,7 +77,7 @@ lint:
 
 bench:
   provider: anthropic           # anthropic | openai | ollama
-  model: claude-sonnet-4-5-20250514  # any supported model
+  model: claude-sonnet-4-5-20250929  # any supported model
   scenarios: auto               # auto-generate scenarios, or path to scenarios file
   runs: 3                       # repeat each scenario N times for consistency
   temperature: 0                # deterministic by default
@@ -314,7 +314,7 @@ $ agentdx bench
 
   AgentDX Bench — my-weather-server (5 tools, 18 scenarios)
 
-  Running with claude-sonnet-4-5-20250514 (3 runs per scenario)...
+  Running with claude-sonnet-4-5-20250929 (3 runs per scenario)...
 
   Tool Selection     ████████████████████░░  92%  (17/18 correct)
   Parameter Accuracy ██████████████░░░░░░░░  68%  (units param confused in 4 cases)
@@ -362,7 +362,7 @@ agentdx bench --provider ollama --model llama3.2
 # requires Ollama running locally
 
 # Multiple models comparison
-agentdx bench --provider anthropic --model claude-sonnet-4-5-20250514
+agentdx bench --provider anthropic --model claude-sonnet-4-5-20250929
 agentdx bench --provider openai --model gpt-4o
 # compare results to see which LLM works best with your server
 ```
@@ -373,7 +373,7 @@ AgentDX shows estimated cost before running:
 
 ```
 This benchmark will run 18 scenarios × 3 runs = 54 LLM calls
-Estimated cost: ~$0.12 (claude-sonnet-4-5-20250514)
+Estimated cost: ~$0.12 (claude-sonnet-4-5-20250929)
 Proceed? [Y/n]
 ```
 
@@ -432,7 +432,7 @@ Lint options:
 
 Bench options:
   --provider <name>         LLM provider: anthropic (default), openai, ollama
-  --model <name>            Model to use (default: claude-sonnet-4-5-20250514)
+  --model <name>            Model to use (default: claude-sonnet-4-5-20250929)
   --scenarios <path>        Path to custom scenarios YAML file
   --runs <n>                Runs per scenario (default: 3)
   --format <fmt>            Output format: text (default), json

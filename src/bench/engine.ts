@@ -11,6 +11,8 @@ import { evaluateMultiTool } from './evaluators/multi-tool.js';
 import { evaluateErrorRecovery } from './evaluators/error-recovery.js';
 import { calculateDXScore } from './score.js';
 
+const DEFAULT_CONCURRENCY = 5;
+
 export interface BenchConfig {
   provider: string;
   model: string;
@@ -18,6 +20,8 @@ export interface BenchConfig {
   runs: number;
   temperature: number;
   skipErrorRecovery?: boolean;
+  verbose?: boolean;
+  concurrency?: number;
 }
 
 export interface BenchEstimate {
@@ -78,7 +82,7 @@ export async function estimateBench(
   if (config.scenarios !== 'auto' && existsSync(config.scenarios)) {
     scenarios = loadScenarios(config.scenarios);
   } else {
-    scenarios = await generateScenarios(tools, adapter);
+    scenarios = await generateScenarios(tools, adapter, { verbose: config.verbose });
   }
 
   const evalCalls = scenarios.length * config.runs;
@@ -111,15 +115,15 @@ export async function runBench(
   onProgress?: (completed: number, total: number) => void,
 ): Promise<BenchReport> {
   const availableTools = new Set(tools.map((t) => t.name));
-  const allResponses: LLMResponse[] = [];
   let totalInputTokens = 0;
   let totalOutputTokens = 0;
 
   const totalEvalCalls = scenarios.length * config.runs;
   let completed = 0;
+  const concurrency = config.concurrency ?? DEFAULT_CONCURRENCY;
 
-  // For each scenario, run N times and take the majority response
-  for (const scenario of scenarios) {
+  // Evaluate one scenario: run N times and return majority-vote representative response
+  async function evaluateScenario(scenario: BenchScenario): Promise<LLMResponse> {
     const runs: LLMResponse[] = [];
 
     for (let r = 0; r < config.runs; r++) {
@@ -140,12 +144,27 @@ export async function runBench(
 
     // Majority vote on tool selection
     const majorityToolName = mode(runs.map((r) => r.toolCalls[0]?.name ?? null));
-    const representativeRun = runs.find(
+    return runs.find(
       (r) => (r.toolCalls[0]?.name ?? null) === majorityToolName,
     ) ?? runs[0]!;
-
-    allResponses.push(representativeRun);
   }
+
+  // Run scenario evaluations concurrently with a pool of `concurrency`
+  const allResponses: LLMResponse[] = new Array(scenarios.length);
+  let nextIndex = 0;
+
+  async function worker(): Promise<void> {
+    while (nextIndex < scenarios.length) {
+      const idx = nextIndex++;
+      allResponses[idx] = await evaluateScenario(scenarios[idx]!);
+    }
+  }
+
+  const workers = Array.from(
+    { length: Math.min(concurrency, scenarios.length) },
+    () => worker(),
+  );
+  await Promise.all(workers);
 
   // Run evaluators
   const toolSelectionResult = evaluateToolSelection(scenarios, allResponses, availableTools);

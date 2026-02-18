@@ -18,6 +18,7 @@ export interface ChatParams {
   messages: Message[];
   tools: ToolDefinition[];
   temperature: number;
+  maxTokens?: number;
 }
 
 /** Response from the LLM. */

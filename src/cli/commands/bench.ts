@@ -29,8 +29,9 @@ export function registerBenchCommand(program: Command): void {
     .option('--no-confirm', 'Skip cost confirmation prompt')
     .option('--temperature <n>', 'LLM temperature')
     .option('--skip-error-recovery', 'Skip error recovery evaluation')
-    .action(async (opts: BenchOpts) => {
+    .action(async (opts: BenchOpts, cmd) => {
       const cwd = process.cwd();
+      const verbose = cmd.parent?.opts()?.verbose ?? false;
 
       // Load config
       let raw;
@@ -61,6 +62,7 @@ export function registerBenchCommand(program: Command): void {
         runs: opts.runs ? parseInt(opts.runs, 10) : config.bench.runs,
         temperature: opts.temperature ? parseFloat(opts.temperature) : config.bench.temperature,
         skipErrorRecovery: opts.skipErrorRecovery ?? false,
+        verbose,
       };
 
       // Connect to server to discover tools
@@ -116,12 +118,14 @@ export function registerBenchCommand(program: Command): void {
 
         const { createInterface } = await import('node:readline');
         const rl = createInterface({ input: process.stdin, output: process.stdout });
-        const answer = await new Promise<string>((resolve) => {
-          rl.question('Proceed? [Y/n] ', (a) => {
-            rl.close();
-            resolve(a.trim().toLowerCase());
+        let answer: string;
+        try {
+          answer = await new Promise<string>((resolve) => {
+            rl.question('Proceed? [Y/n] ', (a) => resolve(a.trim().toLowerCase()));
           });
-        });
+        } finally {
+          rl.close();
+        }
 
         if (answer === 'n' || answer === 'no') {
           console.log('Aborted.');

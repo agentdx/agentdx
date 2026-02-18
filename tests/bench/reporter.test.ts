@@ -38,7 +38,7 @@ const REPORT: BenchReport = {
     { content: 'Checking weather.', toolCalls: [{ name: 'get_weather', arguments: {} }], inputTokens: 100, outputTokens: 50 },
     { content: 'Cannot do that.', toolCalls: [], inputTokens: 80, outputTokens: 30 },
   ],
-  config: { provider: 'anthropic', model: 'claude-sonnet-4-5-20250514', scenarios: 'auto', runs: 3, temperature: 0 },
+  config: { provider: 'anthropic', model: 'claude-sonnet-4-5-20250929', scenarios: 'auto', runs: 3, temperature: 0 },
   tools: [{ name: 'get_weather', description: 'Get weather' }],
   totalInputTokens: 180,
   totalOutputTokens: 80,
@@ -104,7 +104,7 @@ describe('formatBenchJson', () => {
 
   it('includes config and cost', () => {
     const parsed = JSON.parse(formatBenchJson(REPORT));
-    expect(parsed.config.model).toBe('claude-sonnet-4-5-20250514');
+    expect(parsed.config.model).toBe('claude-sonnet-4-5-20250929');
     expect(parsed.cost.estimatedCost).toBe(0.0012);
   });
 });

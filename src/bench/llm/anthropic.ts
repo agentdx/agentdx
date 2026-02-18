@@ -4,7 +4,7 @@ import type { ToolDefinition } from '../../core/types.js';
 
 /** Per-million-token pricing for Claude models. [input, output] */
 const PRICING: Record<string, [number, number]> = {
-  'claude-sonnet-4-5-20250514': [3, 15],
+  'claude-sonnet-4-5-20250929': [3, 15],
   'claude-haiku-3-5-20241022': [0.8, 4],
   'claude-opus-4-20250514': [15, 75],
 };
@@ -33,7 +33,7 @@ export class AnthropicAdapter implements LLMAdapter {
   async chat(params: ChatParams): Promise<LLMResponse> {
     const response = await this.client.messages.create({
       model: this.model,
-      max_tokens: 1024,
+      max_tokens: params.maxTokens ?? 1024,
       system: params.system,
       messages: params.messages.map((m) => ({
         role: m.role,
