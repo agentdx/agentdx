@@ -62,9 +62,7 @@ async function runDevServer(entrypointArg?: string, watchEnabled = true): Promis
   try {
     conn = await createSession(entrypoint);
   } catch (err) {
-    console.error(
-      `Failed to connect: ${err instanceof Error ? err.message : err}`,
-    );
+    console.error(`Failed to connect: ${err instanceof Error ? err.message : err}`);
     process.exit(1);
   }
 
@@ -91,9 +89,7 @@ async function runDevServer(entrypointArg?: string, watchEnabled = true): Promis
       conn = await createSession(entrypoint);
       console.log(`Reconnected. ${conn.tools.length} tool(s) available.`);
     } catch (err) {
-      console.error(
-        `Failed to reconnect: ${err instanceof Error ? err.message : err}`,
-      );
+      console.error(`Failed to reconnect: ${err instanceof Error ? err.message : err}`);
       console.log('Use .reconnect to try again.');
     }
     isReconnecting = false;

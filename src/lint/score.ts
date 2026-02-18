@@ -47,8 +47,11 @@ export function calculateLintScore(issues: LintIssue[]): number {
 
 function severityWeight(severity: 'error' | 'warn' | 'info'): number {
   switch (severity) {
-    case 'error': return 3;
-    case 'warn': return 2;
-    case 'info': return 1;
+    case 'error':
+      return 3;
+    case 'warn':
+      return 2;
+    case 'info':
+      return 1;
   }
 }

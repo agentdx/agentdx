@@ -39,10 +39,7 @@ describe('loadConfig', () => {
   });
 
   it('validates transport enum', () => {
-    writeFileSync(
-      join(testDir, 'agentdx.config.yaml'),
-      `server:\n  transport: invalid\n`,
-    );
+    writeFileSync(join(testDir, 'agentdx.config.yaml'), `server:\n  transport: invalid\n`);
     expect(() => loadConfig(testDir)).toThrow();
   });
 });

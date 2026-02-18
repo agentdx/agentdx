@@ -3,9 +3,11 @@
 context: fork
 
 ## When to use
+
 When checking that implementation respects architecture boundaries or before a major refactor.
 
 ## Workflow
+
 1. Read docs/ARCHITECTURE.md section 6 (Architecture Boundaries)
 2. Scan import statements across all src/ files
 3. Verify:

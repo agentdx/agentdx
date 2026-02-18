@@ -38,9 +38,7 @@ describe('scaffoldProject', () => {
       description: 'Test',
     });
 
-    const pkg = JSON.parse(
-      readFileSync(join(testDir, 'package.json'), 'utf-8'),
-    );
+    const pkg = JSON.parse(readFileSync(join(testDir, 'package.json'), 'utf-8'));
     expect(pkg.name).toBe('my-server');
     expect(pkg.version).toBe('0.1.0');
     expect(pkg.type).toBe('module');
@@ -59,9 +57,7 @@ describe('scaffoldProject', () => {
       description: 'Test',
     });
 
-    const tsconfig = JSON.parse(
-      readFileSync(join(testDir, 'tsconfig.json'), 'utf-8'),
-    );
+    const tsconfig = JSON.parse(readFileSync(join(testDir, 'tsconfig.json'), 'utf-8'));
     expect(tsconfig.compilerOptions.strict).toBe(true);
     expect(tsconfig.compilerOptions.module).toBe('NodeNext');
     expect(tsconfig.compilerOptions.moduleResolution).toBe('NodeNext');
@@ -75,8 +71,8 @@ describe('scaffoldProject', () => {
     });
 
     const source = readFileSync(join(testDir, 'src', 'index.ts'), 'utf-8');
-    expect(source).toContain("import { McpServer }");
-    expect(source).toContain("import { StdioServerTransport }");
+    expect(source).toContain('import { McpServer }');
+    expect(source).toContain('import { StdioServerTransport }');
     expect(source).toContain("name: 'my-server'");
     expect(source).toContain("registerTool('hello'");
     expect(source).toContain('z.string()');
@@ -89,9 +85,7 @@ describe('scaffoldProject', () => {
       description: 'My cool server',
     });
 
-    const config = yamlParse(
-      readFileSync(join(testDir, 'agentdx.config.yaml'), 'utf-8'),
-    );
+    const config = yamlParse(readFileSync(join(testDir, 'agentdx.config.yaml'), 'utf-8'));
     expect(config.version).toBe(1);
     expect(config.server.name).toBe('my-server');
     expect(config.server.transport).toBe('sse');

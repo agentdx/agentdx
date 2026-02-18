@@ -74,14 +74,21 @@
             "items": {
               "type": "object",
               "properties": {
-                "oldText": { "type": "string", "description": "Text to search for — must match exactly" },
+                "oldText": {
+                  "type": "string",
+                  "description": "Text to search for — must match exactly"
+                },
                 "newText": { "type": "string", "description": "Text to replace with" }
               },
               "required": ["oldText", "newText"]
             },
             "description": "Array of edit operations to apply"
           },
-          "dryRun": { "type": "boolean", "default": false, "description": "Preview changes using git-style diff format" }
+          "dryRun": {
+            "type": "boolean",
+            "default": false,
+            "description": "Preview changes using git-style diff format"
+          }
         },
         "required": ["path", "edits"]
       }
@@ -136,8 +143,14 @@
       "inputSchema": {
         "type": "object",
         "properties": {
-          "source": { "type": "string", "description": "The current path of the file or directory" },
-          "destination": { "type": "string", "description": "The new path for the file or directory" }
+          "source": {
+            "type": "string",
+            "description": "The current path of the file or directory"
+          },
+          "destination": {
+            "type": "string",
+            "description": "The new path for the file or directory"
+          }
         },
         "required": ["source", "destination"]
       }
@@ -149,7 +162,10 @@
         "type": "object",
         "properties": {
           "path": { "type": "string", "description": "The starting path for the search" },
-          "pattern": { "type": "string", "description": "The search pattern to match against file and directory names" },
+          "pattern": {
+            "type": "string",
+            "description": "The search pattern to match against file and directory names"
+          },
           "excludePatterns": {
             "type": "array",
             "items": { "type": "string" },

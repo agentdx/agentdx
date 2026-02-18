@@ -1,9 +1,11 @@
 # Skill: /implement
 
 ## When to use
+
 When building a new lint rule, evaluator, or command feature.
 
 ## Workflow
+
 1. Read docs/SPEC.md for the feature being implemented
 2. Read docs/ARCHITECTURE.md for structural constraints
 3. Check existing code in the relevant directory for patterns
@@ -15,6 +17,7 @@ When building a new lint rule, evaluator, or command feature.
 9. If an evaluator: ensure it's registered in the bench engine
 
 ## Patterns
+
 - Lint rules: export a `LintRule` object with `id`, `name`, `defaultSeverity`, `run(tools, config) → LintResult[]`
 - Evaluators: export an `Evaluator` object with `dimension`, `weight`, `evaluate(scenarios, responses) → EvaluatorResult`
 - Both are pure functions — no side effects

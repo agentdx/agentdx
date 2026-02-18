@@ -74,10 +74,32 @@ export const openaiNamePattern: LintRule = {
 };
 
 const AMBIGUOUS_NAMES = new Set([
-  'search', 'get', 'run', 'do', 'execute', 'process', 'handle',
-  'query', 'find', 'fetch', 'read', 'write', 'send', 'call',
-  'data', 'action', 'operation', 'task', 'request', 'update',
-  'tool', 'function', 'method', 'helper', 'util', 'misc',
+  'search',
+  'get',
+  'run',
+  'do',
+  'execute',
+  'process',
+  'handle',
+  'query',
+  'find',
+  'fetch',
+  'read',
+  'write',
+  'send',
+  'call',
+  'data',
+  'action',
+  'operation',
+  'task',
+  'request',
+  'update',
+  'tool',
+  'function',
+  'method',
+  'helper',
+  'util',
+  'misc',
 ]);
 
 export const nameNotAmbiguous: LintRule = {

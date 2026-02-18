@@ -90,7 +90,11 @@ describe('param-default-documented', () => {
         inputSchema: {
           type: 'object',
           properties: {
-            limit: { type: 'number', default: 10, description: 'Max items to return. Defaults to 10' },
+            limit: {
+              type: 'number',
+              default: 10,
+              description: 'Max items to return. Defaults to 10',
+            },
           },
         },
       }),

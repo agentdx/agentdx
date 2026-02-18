@@ -35,17 +35,13 @@ describe('schema-exists', () => {
 
 describe('schema-valid', () => {
   it('flags schema with wrong type', () => {
-    const issues = schemaValid.check([
-      tool({ name: 'get_user', inputSchema: { type: 'array' } }),
-    ]);
+    const issues = schemaValid.check([tool({ name: 'get_user', inputSchema: { type: 'array' } })]);
     expect(issues).toHaveLength(1);
     expect(issues[0]!.message).toContain('must be "object"');
   });
 
   it('passes valid schema', () => {
-    const issues = schemaValid.check([
-      tool({ name: 'get_user', inputSchema: { type: 'object' } }),
-    ]);
+    const issues = schemaValid.check([tool({ name: 'get_user', inputSchema: { type: 'object' } })]);
     expect(issues).toHaveLength(0);
   });
 });

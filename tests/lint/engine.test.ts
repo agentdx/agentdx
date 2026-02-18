@@ -22,7 +22,8 @@ describe('lint engine', () => {
     const result = lint([
       tool({
         name: 'get_user',
-        description: 'Retrieves a user profile by their unique identifier from the database. Use this when you need user details. Requires valid user ID. Returns up to one result.',
+        description:
+          'Retrieves a user profile by their unique identifier from the database. Use this when you need user details. Requires valid user ID. Returns up to one result.',
         inputSchema: {
           type: 'object',
           properties: {
@@ -36,20 +37,16 @@ describe('lint engine', () => {
   });
 
   it('respects rule overrides to disable rules', () => {
-    const result = lint(
-      [tool({ name: 'x' })],
-      { rules: { 'desc-exists': 'off', 'schema-exists': false } },
-    );
+    const result = lint([tool({ name: 'x' })], {
+      rules: { 'desc-exists': 'off', 'schema-exists': false },
+    });
     const ruleIds = result.issues.map((i) => i.rule);
     expect(ruleIds).not.toContain('desc-exists');
     expect(ruleIds).not.toContain('schema-exists');
   });
 
   it('respects rule overrides to change severity', () => {
-    const result = lint(
-      [tool({ name: 'x' })],
-      { rules: { 'desc-exists': 'info' } },
-    );
+    const result = lint([tool({ name: 'x' })], { rules: { 'desc-exists': 'info' } });
     const descIssue = result.issues.find((i) => i.rule === 'desc-exists');
     expect(descIssue?.severity).toBe('info');
   });
@@ -62,7 +59,6 @@ describe('lint engine', () => {
         inputSchema: { type: 'object', properties: {} },
       }),
     ]);
-    const ruleIds = new Set(result.issues.map((i) => i.rule));
     // Should flag at least some description quality or naming issues
     expect(result.issues.length).toBeGreaterThan(0);
   });

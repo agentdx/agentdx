@@ -11,9 +11,24 @@ const result: LintResult = {
     { name: 'list_posts', description: 'Lists all posts' },
   ],
   issues: [
-    { rule: 'schema-exists', severity: 'error', message: 'get_user: no input schema defined', tool: 'get_user' },
-    { rule: 'desc-min-length', severity: 'warn', message: 'list_posts: description is 15 chars', tool: 'list_posts' },
-    { rule: 'name-verb-noun', severity: 'info', message: 'list_posts: consider verb_noun', tool: 'list_posts' },
+    {
+      rule: 'schema-exists',
+      severity: 'error',
+      message: 'get_user: no input schema defined',
+      tool: 'get_user',
+    },
+    {
+      rule: 'desc-min-length',
+      severity: 'warn',
+      message: 'list_posts: description is 15 chars',
+      tool: 'list_posts',
+    },
+    {
+      rule: 'name-verb-noun',
+      severity: 'info',
+      message: 'list_posts: consider verb_noun',
+      tool: 'list_posts',
+    },
   ],
 };
 

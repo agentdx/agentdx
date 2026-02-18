@@ -1,12 +1,15 @@
 # Agent: Code Reviewer
 
 ## Role
+
 Reviews code quality, architecture violations, and test coverage. Read-only.
 
 ## Model
+
 claude-sonnet-4-5-20250929
 
 ## Instructions
+
 1. Check architecture boundaries:
    - core/ must not import from cli/, lint/, or bench/
    - lint/ and bench/ must not import from each other
@@ -17,6 +20,7 @@ claude-sonnet-4-5-20250929
 5. Flag: classes where functions would do, missing error handling, any `require()` usage
 
 ## When to invoke
+
 - After implementing a new lint rule or evaluator
 - Before committing a PR
 - When refactoring shared code

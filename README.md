@@ -58,52 +58,52 @@ AgentDX ships with 30 rules across 4 categories, informed by academic research a
 
 ### Description Quality (10 rules)
 
-| Rule | Severity | What it checks |
-|---|---|---|
-| `desc-exists` | error | Tool has a description |
-| `desc-min-length` | warn | Description is at least 20 characters |
-| `desc-max-length` | warn | Description is under 200 characters |
-| `desc-action-verb` | warn | Description starts with a verb ("Retrieves...", "Creates...") |
-| `desc-clarity` | info | Flags vague terms like "handles", "processes", "misc" |
-| `desc-unique` | warn | No two tools have near-identical descriptions |
-| `description-states-purpose` | warn | Description clearly states what the tool does |
-| `description-includes-usage-guidance` | info | Explains when or how to use the tool |
-| `description-states-limitations` | info | Mentions constraints, rate limits, or caveats |
-| `description-has-examples` | info | Complex tools (3+ params) include example inputs |
+| Rule                                  | Severity | What it checks                                                |
+| ------------------------------------- | -------- | ------------------------------------------------------------- |
+| `desc-exists`                         | error    | Tool has a description                                        |
+| `desc-min-length`                     | warn     | Description is at least 20 characters                         |
+| `desc-max-length`                     | warn     | Description is under 200 characters                           |
+| `desc-action-verb`                    | warn     | Description starts with a verb ("Retrieves...", "Creates...") |
+| `desc-clarity`                        | info     | Flags vague terms like "handles", "processes", "misc"         |
+| `desc-unique`                         | warn     | No two tools have near-identical descriptions                 |
+| `description-states-purpose`          | warn     | Description clearly states what the tool does                 |
+| `description-includes-usage-guidance` | info     | Explains when or how to use the tool                          |
+| `description-states-limitations`      | info     | Mentions constraints, rate limits, or caveats                 |
+| `description-has-examples`            | info     | Complex tools (3+ params) include example inputs              |
 
 ### Schema & Parameters (11 rules)
 
-| Rule | Severity | What it checks |
-|---|---|---|
-| `schema-exists` | error | Tool defines an input schema |
-| `schema-valid` | error | Schema type is "object" |
-| `schema-param-desc` | warn | Every parameter has a description |
-| `schema-required` | warn | Required parameters are marked |
-| `schema-enum-bool` | info | Suggests enums over booleans for clarity |
-| `schema-no-any` | warn | Every parameter has a type |
-| `schema-defaults` | info | Optional parameters document defaults |
-| `param-enum-documented` | warn | Enum values are explained in description |
-| `param-default-documented` | info | Default values are mentioned in description |
-| `schema-not-too-deep` | warn | Nesting doesn't exceed depth 3 |
-| `schema-no-excessive-params` | warn | Tool has 10 or fewer parameters |
+| Rule                         | Severity | What it checks                              |
+| ---------------------------- | -------- | ------------------------------------------- |
+| `schema-exists`              | error    | Tool defines an input schema                |
+| `schema-valid`               | error    | Schema type is "object"                     |
+| `schema-param-desc`          | warn     | Every parameter has a description           |
+| `schema-required`            | warn     | Required parameters are marked              |
+| `schema-enum-bool`           | info     | Suggests enums over booleans for clarity    |
+| `schema-no-any`              | warn     | Every parameter has a type                  |
+| `schema-defaults`            | info     | Optional parameters document defaults       |
+| `param-enum-documented`      | warn     | Enum values are explained in description    |
+| `param-default-documented`   | info     | Default values are mentioned in description |
+| `schema-not-too-deep`        | warn     | Nesting doesn't exceed depth 3              |
+| `schema-no-excessive-params` | warn     | Tool has 10 or fewer parameters             |
 
 ### Naming Conventions (4 rules)
 
-| Rule | Severity | What it checks |
-|---|---|---|
-| `name-convention` | warn | Consistent naming (snake_case, camelCase, or kebab-case) |
-| `name-verb-noun` | info | Follows verb_noun pattern (e.g. `get_user`) |
-| `name-unique` | error | No duplicate tool names |
-| `name-prefix` | info | Related tools share a common prefix |
+| Rule              | Severity | What it checks                                           |
+| ----------------- | -------- | -------------------------------------------------------- |
+| `name-convention` | warn     | Consistent naming (snake_case, camelCase, or kebab-case) |
+| `name-verb-noun`  | info     | Follows verb_noun pattern (e.g. `get_user`)              |
+| `name-unique`     | error    | No duplicate tool names                                  |
+| `name-prefix`     | info     | Related tools share a common prefix                      |
 
 ### Provider Compatibility (4 rules)
 
-| Rule | Severity | What it checks |
-|---|---|---|
-| `openai-tool-count` | warn/error | Warns >20 tools, errors >128 (provider limits) |
-| `openai-name-length` | error | Names are ≤64 characters |
-| `openai-name-pattern` | error | Names match `/^[a-zA-Z0-9_-]+$/` |
-| `name-not-ambiguous` | warn | No generic names like "search", "get", "run" |
+| Rule                  | Severity   | What it checks                                 |
+| --------------------- | ---------- | ---------------------------------------------- |
+| `openai-tool-count`   | warn/error | Warns >20 tools, errors >128 (provider limits) |
+| `openai-name-length`  | error      | Names are ≤64 characters                       |
+| `openai-name-pattern` | error      | Names match `/^[a-zA-Z0-9_-]+$/`               |
+| `name-not-ambiguous`  | warn       | No generic names like "search", "get", "run"   |
 
 ## Architecture
 
@@ -140,11 +140,11 @@ Options:
 
 ### Exit Codes
 
-| Code | Meaning |
-|---|---|
-| `0` | All rules passed |
-| `1` | Errors found |
-| `2` | Warnings found (no errors) |
+| Code | Meaning                    |
+| ---- | -------------------------- |
+| `0`  | All rules passed           |
+| `1`  | Errors found               |
+| `2`  | Warnings found (no errors) |
 
 ### Output Formats
 
@@ -164,9 +164,9 @@ server:
 
 lint:
   rules:
-    desc-min-length: 30          # override threshold
-    schema-enum-bool: off         # disable rule
-    description-states-limitations: warn  # escalate to warning
+    desc-min-length: 30 # override threshold
+    schema-enum-bool: off # disable rule
+    description-states-limitations: warn # escalate to warning
 ```
 
 ```json
@@ -241,6 +241,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for development guidelines.
 ## Contributing
 
 We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for:
+
 - Development setup
 - How to add lint rules
 - PR guidelines and code style

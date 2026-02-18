@@ -46,10 +46,7 @@ export async function connectToServer(options: ConnectOptions): Promise<ServerCo
     inputSchema: t.inputSchema,
   }));
 
-  async function callTool(
-    name: string,
-    args?: Record<string, unknown>,
-  ): Promise<ToolCallResult> {
+  async function callTool(name: string, args?: Record<string, unknown>): Promise<ToolCallResult> {
     const result = await client.callTool({ name, arguments: args });
     return {
       content: result.content as ToolCallResult['content'],

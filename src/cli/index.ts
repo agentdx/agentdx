@@ -25,9 +25,7 @@ const program = new Command();
 
 program
   .name('agentdx')
-  .description(
-    'The linter for MCP servers. Catches what agents can\'t tell you.',
-  )
+  .description("The linter for MCP servers. Catches what agents can't tell you.")
   .version(pkg.version)
   .option('-v, --verbose', 'Enable verbose output')
   .option('-c, --config <path>', 'Path to agentdx.config.yaml');

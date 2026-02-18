@@ -8,12 +8,18 @@ import {
 } from '../../../src/lint/rules/descriptions.js';
 
 function tool(overrides: Partial<ToolDefinition> & { name: string }): ToolDefinition {
-  return { name: overrides.name, description: overrides.description, inputSchema: overrides.inputSchema };
+  return {
+    name: overrides.name,
+    description: overrides.description,
+    inputSchema: overrides.inputSchema,
+  };
 }
 
 describe('description-states-purpose', () => {
   it('flags description that does not state purpose', () => {
-    const issues = descStatesPurpose.check([tool({ name: 'weather', description: 'A weather tool' })]);
+    const issues = descStatesPurpose.check([
+      tool({ name: 'weather', description: 'A weather tool' }),
+    ]);
     expect(issues).toHaveLength(1);
     expect(issues[0]!.rule).toBe('description-states-purpose');
     expect(issues[0]!.fix).toBeDefined();
@@ -30,7 +36,8 @@ describe('description-states-purpose', () => {
     const issues = descStatesPurpose.check([
       tool({
         name: 'weather',
-        description: 'This tool provides access to the comprehensive weather data API including temperature, humidity, and wind speed information',
+        description:
+          'This tool provides access to the comprehensive weather data API including temperature, humidity, and wind speed information',
       }),
     ]);
     expect(issues).toHaveLength(0);
@@ -45,7 +52,10 @@ describe('description-states-purpose', () => {
 describe('description-includes-usage-guidance', () => {
   it('flags description without usage guidance', () => {
     const issues = descIncludesUsageGuidance.check([
-      tool({ name: 'search_docs', description: 'Searches documentation for relevant articles and pages' }),
+      tool({
+        name: 'search_docs',
+        description: 'Searches documentation for relevant articles and pages',
+      }),
     ]);
     expect(issues).toHaveLength(1);
     expect(issues[0]!.rule).toBe('description-includes-usage-guidance');
@@ -55,16 +65,15 @@ describe('description-includes-usage-guidance', () => {
     const issues = descIncludesUsageGuidance.check([
       tool({
         name: 'search_docs',
-        description: 'Searches documentation. Use this when the user asks about API usage or configuration options',
+        description:
+          'Searches documentation. Use this when the user asks about API usage or configuration options',
       }),
     ]);
     expect(issues).toHaveLength(0);
   });
 
   it('skips short descriptions', () => {
-    const issues = descIncludesUsageGuidance.check([
-      tool({ name: 'x', description: 'Gets data' }),
-    ]);
+    const issues = descIncludesUsageGuidance.check([tool({ name: 'x', description: 'Gets data' })]);
     expect(issues).toHaveLength(0);
   });
 });

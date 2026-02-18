@@ -62,7 +62,7 @@ interface ServerConnection {
 }
 
 // Usage
-const conn = await connectToServer({ entry: "src/index.ts", transport: "stdio" });
+const conn = await connectToServer({ entry: 'src/index.ts', transport: 'stdio' });
 console.log(conn.tools); // [{ name: "get_weather", description: "...", inputSchema: {...} }]
 await conn.close();
 ```
@@ -72,12 +72,14 @@ await conn.close();
 ### 2.2 Config & Auto-detect (`src/core/config.ts`, `src/core/detect.ts`)
 
 **Config loading:**
+
 - Parse `agentdx.config.yaml` with `yaml` package
 - Validate with zod schema
 - Merge with CLI flags (CLI flags win)
 - All config is optional — everything has sensible defaults
 
 **Auto-detection:**
+
 - Entry point: walk the priority list (config → package.json → common files)
 - Transport: scan entry file for transport class imports
 - Language: check file extension (.ts → TypeScript, .py → Python, .js → JavaScript)
@@ -85,8 +87,8 @@ await conn.close();
 ```typescript
 interface ResolvedConfig {
   entry: string;
-  transport: "stdio" | "sse";
-  language: "typescript" | "javascript" | "python";
+  transport: 'stdio' | 'sse';
+  language: 'typescript' | 'javascript' | 'python';
   lint: LintConfig;
   bench: BenchConfig;
 }
@@ -135,18 +137,18 @@ Each lint rule is a pure function:
 ```typescript
 interface LintResult {
   ruleId: string;
-  severity: "error" | "warn" | "info";
-  tool: string;          // which tool triggered it
-  message: string;       // human-readable explanation
-  suggestion?: string;   // how to fix it
-  fixable?: boolean;     // can --fix handle this?
+  severity: 'error' | 'warn' | 'info';
+  tool: string; // which tool triggered it
+  message: string; // human-readable explanation
+  suggestion?: string; // how to fix it
+  fixable?: boolean; // can --fix handle this?
 }
 
 interface LintRule {
   id: string;
   name: string;
   description: string;
-  defaultSeverity: "error" | "warn" | "info";
+  defaultSeverity: 'error' | 'warn' | 'info';
   run: (tools: ToolDefinition[], config: LintConfig) => LintResult[];
 }
 ```
@@ -173,15 +175,21 @@ The lint score is deterministic — same input always produces same score. No LL
 function calculateLintScore(results: LintResult[], totalTools: number): number {
   // Start at 100, deduct points
   let score = 100;
-  
+
   for (const result of results) {
     switch (result.severity) {
-      case "error": score -= 10; break;
-      case "warn":  score -= 3;  break;
-      case "info":  score -= 1;  break;
+      case 'error':
+        score -= 10;
+        break;
+      case 'warn':
+        score -= 3;
+        break;
+      case 'info':
+        score -= 1;
+        break;
     }
   }
-  
+
   return Math.max(0, Math.min(100, score));
 }
 ```
@@ -246,23 +254,25 @@ Auto-generates test scenarios from tool definitions using an LLM.
 ```typescript
 interface BenchScenario {
   id: string;
-  task: string;                    // Natural language task
-  expectedTool: string | null;     // Expected tool (null = should refuse)
+  task: string; // Natural language task
+  expectedTool: string | null; // Expected tool (null = should refuse)
   expectedParams?: Record<string, unknown>;
-  tags: string[];                  // "positive", "negative", "ambiguous", "multi-tool"
-  difficulty: "easy" | "medium" | "hard";
+  tags: string[]; // "positive", "negative", "ambiguous", "multi-tool"
+  difficulty: 'easy' | 'medium' | 'hard';
 }
 ```
 
 **Generation strategy:**
 
 For each tool, generate:
+
 - 2 straightforward positive scenarios (easy — clear match to this tool)
 - 1 scenario with all optional params (medium — tests parameter filling)
 - 1 ambiguous scenario (medium — could be this tool or another)
 - 1 negative scenario (hard — sounds related but no tool should be used)
 
 For multi-tool servers:
+
 - 2 multi-step scenarios requiring multiple tool calls
 - 1 scenario requiring the LLM to pick between similar tools
 
@@ -284,7 +294,7 @@ interface LLMAdapter {
     tools: ToolDefinition[];
     temperature: number;
   }): Promise<LLMResponse>;
-  
+
   estimateCost(inputTokens: number, outputTokens: number): number;
 }
 
@@ -318,9 +328,9 @@ Each evaluator scores one dimension of the Agent DX Score:
 ```typescript
 interface EvaluatorResult {
   dimension: string;
-  score: number;          // 0-100
-  weight: number;         // how much this matters in the overall score
-  details: EvalDetail[];  // per-scenario breakdown
+  score: number; // 0-100
+  weight: number; // how much this matters in the overall score
+  details: EvalDetail[]; // per-scenario breakdown
 }
 
 interface EvalDetail {
@@ -339,25 +349,30 @@ interface Evaluator {
 ```
 
 **Tool Selection Evaluator** (weight: 35%)
+
 - Compares `response.toolCalls[0].name` with `scenario.expectedTool`
 - Handles: correct, wrong, hallucinated, correct refusal
 
 **Parameter Evaluator** (weight: 30%)
+
 - Deep comparison of `response.toolCalls[0].arguments` with `scenario.expectedParams`
 - Checks: all required present, correct types, valid enum values
 - Partial credit for close-but-not-exact (e.g., "new york" vs "New York")
 
 **Ambiguity Evaluator** (weight: 15%)
+
 - Only runs on scenarios tagged `ambiguous`
 - Checks if LLM asked for clarification or made a reasonable default choice
 - Penalizes silent wrong guesses
 
 **Multi-tool Evaluator** (weight: 10%)
+
 - Only runs on scenarios tagged `multi-tool`
 - Checks if LLM made correct sequence of tool calls
 - Validates data flow between calls
 
 **Error Recovery Evaluator** (weight: 10%)
+
 - After initial eval, simulates tool error responses
 - Checks if LLM retries with corrected params or explains the error
 - This requires a second LLM call (more expensive, can be skipped with `--skip-error-recovery`)
@@ -366,18 +381,12 @@ interface Evaluator {
 
 ```typescript
 function calculateDXScore(evaluatorResults: EvaluatorResult[]): DXScore {
-  const weightedScore = evaluatorResults.reduce(
-    (sum, r) => sum + (r.score * r.weight),
-    0
-  );
-  
-  const totalWeight = evaluatorResults.reduce(
-    (sum, r) => sum + r.weight,
-    0
-  );
-  
+  const weightedScore = evaluatorResults.reduce((sum, r) => sum + r.score * r.weight, 0);
+
+  const totalWeight = evaluatorResults.reduce((sum, r) => sum + r.weight, 0);
+
   const overall = Math.round(weightedScore / totalWeight);
-  
+
   return {
     overall,
     rating: scoreToRating(overall),
@@ -394,7 +403,7 @@ LLMs are non-deterministic even at temperature 0. AgentDX runs each scenario N t
 ```typescript
 // For each scenario, run N times
 const runs = await Promise.all(
-  Array.from({ length: config.runs }, () => 
+  Array.from({ length: config.runs }, () =>
     adapter.chat({ ... })
   )
 );
@@ -425,6 +434,7 @@ const majorityTool = mode(selectedTools); // most common value
 ```
 
 **Total LLM calls per bench run:**
+
 - 1 for scenario generation
 - (scenarios × runs) for evaluation
 - (error scenarios × runs) for error recovery (optional)

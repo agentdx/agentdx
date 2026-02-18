@@ -32,8 +32,7 @@ async function runInitWizard(projectNameArg?: string): Promise<void> {
       placeholder: 'my-mcp-server',
       validate(value) {
         if (!value.trim()) return 'Project name is required';
-        if (!/^[a-z0-9-]+$/i.test(value))
-          return 'Use letters, numbers, and hyphens only';
+        if (!/^[a-z0-9-]+$/i.test(value)) return 'Use letters, numbers, and hyphens only';
       },
     });
     if (p.isCancel(result)) {
@@ -112,9 +111,7 @@ async function runInitWizard(projectNameArg?: string): Promise<void> {
 
   s.stop('Project scaffolded.');
 
-  p.outro(
-    `Done! Next steps:\n\n  cd ${projectName}\n  npm install\n  agentdx dev`,
-  );
+  p.outro(`Done! Next steps:\n\n  cd ${projectName}\n  npm install\n  agentdx dev`);
 }
 
 export function scaffoldProject(dir: string, options: InitOptions): void {

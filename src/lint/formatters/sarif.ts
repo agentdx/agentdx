@@ -5,9 +5,12 @@ import type { LintResult, LintSeverity } from '../../core/types.js';
  */
 function sarifLevel(severity: LintSeverity): string {
   switch (severity) {
-    case 'error': return 'error';
-    case 'warn': return 'warning';
-    case 'info': return 'note';
+    case 'error':
+      return 'error';
+    case 'warn':
+      return 'warning';
+    case 'info':
+      return 'note';
   }
 }
 

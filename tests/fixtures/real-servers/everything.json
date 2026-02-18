@@ -39,7 +39,11 @@
       "inputSchema": {
         "type": "object",
         "properties": {
-          "messageStyle": { "type": "string", "enum": ["cheerful", "professional", "casual"], "description": "Style of the message" },
+          "messageStyle": {
+            "type": "string",
+            "enum": ["cheerful", "professional", "casual"],
+            "description": "Style of the message"
+          },
           "includeMetadata": { "type": "boolean", "default": true }
         }
       }
@@ -66,7 +70,10 @@
       "inputSchema": {
         "type": "object",
         "properties": {
-          "resourceIndex": { "type": "number", "description": "Index of the resource to reference (0-100)" }
+          "resourceIndex": {
+            "type": "number",
+            "description": "Index of the resource to reference (0-100)"
+          }
         },
         "required": ["resourceIndex"]
       }
@@ -155,7 +162,11 @@
       "inputSchema": {
         "type": "object",
         "properties": {
-          "duration": { "type": "number", "default": 10, "description": "Duration of the operation in seconds" },
+          "duration": {
+            "type": "number",
+            "default": 10,
+            "description": "Duration of the operation in seconds"
+          },
           "steps": { "type": "number", "default": 5, "description": "Number of progress steps" }
         }
       }
@@ -167,7 +178,11 @@
         "type": "object",
         "properties": {
           "query": { "type": "string", "description": "The research query to simulate" },
-          "sources": { "type": "number", "default": 3, "description": "Number of sources to simulate" }
+          "sources": {
+            "type": "number",
+            "default": 3,
+            "description": "Number of sources to simulate"
+          }
         },
         "required": ["query"]
       }

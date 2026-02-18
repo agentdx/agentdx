@@ -30,19 +30,13 @@ describe('detectEntry', () => {
 
   it('reads bin field from package.json', () => {
     mkdirSync(join(testDir, 'dist'), { recursive: true });
-    writeFileSync(
-      join(testDir, 'package.json'),
-      JSON.stringify({ bin: { cli: 'dist/cli.js' } }),
-    );
+    writeFileSync(join(testDir, 'package.json'), JSON.stringify({ bin: { cli: 'dist/cli.js' } }));
     writeFileSync(join(testDir, 'dist', 'cli.js'), '');
     expect(detectEntry(testDir)).toBe('dist/cli.js');
   });
 
   it('reads main field from package.json', () => {
-    writeFileSync(
-      join(testDir, 'package.json'),
-      JSON.stringify({ main: 'lib/server.js' }),
-    );
+    writeFileSync(join(testDir, 'package.json'), JSON.stringify({ main: 'lib/server.js' }));
     mkdirSync(join(testDir, 'lib'), { recursive: true });
     writeFileSync(join(testDir, 'lib', 'server.js'), '');
     expect(detectEntry(testDir)).toBe('lib/server.js');
@@ -70,18 +64,12 @@ describe('detectTransport', () => {
   });
 
   it('detects SSE from source import', () => {
-    writeFileSync(
-      join(testDir, 'server.ts'),
-      `import { SSEServerTransport } from '@mcp/sdk';\n`,
-    );
+    writeFileSync(join(testDir, 'server.ts'), `import { SSEServerTransport } from '@mcp/sdk';\n`);
     expect(detectTransport(testDir, 'server.ts')).toBe('sse');
   });
 
   it('defaults to stdio', () => {
-    writeFileSync(
-      join(testDir, 'server.ts'),
-      `import { StdioServerTransport } from '@mcp/sdk';\n`,
-    );
+    writeFileSync(join(testDir, 'server.ts'), `import { StdioServerTransport } from '@mcp/sdk';\n`);
     expect(detectTransport(testDir, 'server.ts')).toBe('stdio');
   });
 

@@ -8,17 +8,15 @@ interface SchemaProperty {
   [key: string]: unknown;
 }
 
-function getProperties(
-  tool: { inputSchema?: { properties?: Record<string, unknown> } },
-): Record<string, SchemaProperty> {
+function getProperties(tool: {
+  inputSchema?: { properties?: Record<string, unknown> };
+}): Record<string, SchemaProperty> {
   const props = tool.inputSchema?.properties;
   if (!props) return {};
   return props as Record<string, SchemaProperty>;
 }
 
-function getRequired(
-  tool: { inputSchema?: { required?: string[] } },
-): string[] {
+function getRequired(tool: { inputSchema?: { required?: string[] } }): string[] {
   return tool.inputSchema?.required ?? [];
 }
 

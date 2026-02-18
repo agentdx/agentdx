@@ -45,10 +45,7 @@ describe('calculateLintScore', () => {
 
   it('uses worst severity per rule', () => {
     // If a rule has both warn and error, error wins
-    const mixedScore = calculateLintScore([
-      issue('warn', 'rule-a'),
-      issue('error', 'rule-a'),
-    ]);
+    const mixedScore = calculateLintScore([issue('warn', 'rule-a'), issue('error', 'rule-a')]);
     const errorScore = calculateLintScore([issue('error', 'rule-a')]);
     expect(mixedScore).toBe(errorScore);
   });
@@ -59,11 +56,7 @@ describe('calculateLintScore', () => {
   });
 
   it('combines multiple failing rules', () => {
-    const issues = [
-      issue('error', 'rule-a'),
-      issue('warn', 'rule-b'),
-      issue('info', 'rule-c'),
-    ];
+    const issues = [issue('error', 'rule-a'), issue('warn', 'rule-b'), issue('info', 'rule-c')];
     // deduction = 3 + 2 + 1 = 6 out of totalRules * 3
     const expected = Math.round(100 * (1 - 6 / (totalRules * 3)));
     expect(calculateLintScore(issues)).toBe(expected);

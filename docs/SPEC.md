@@ -76,11 +76,11 @@ lint:
     naming-convention: verb_noun
 
 bench:
-  provider: anthropic           # anthropic | openai | ollama
-  model: claude-sonnet-4-5-20250929  # any supported model
-  scenarios: auto               # auto-generate scenarios, or path to scenarios file
-  runs: 3                       # repeat each scenario N times for consistency
-  temperature: 0                # deterministic by default
+  provider: anthropic # anthropic | openai | ollama
+  model: claude-sonnet-4-5-20250929 # any supported model
+  scenarios: auto # auto-generate scenarios, or path to scenarios file
+  runs: 3 # repeat each scenario N times for consistency
+  temperature: 0 # deterministic by default
 ```
 
 ---
@@ -93,42 +93,42 @@ Lint rules are organized into categories. Each rule produces a pass, warn, or fa
 
 #### 3.1 Tool Descriptions
 
-| Rule | ID | Default | What it catches |
-|---|---|---|---|
-| Description exists | `desc-exists` | error | Tool has no description at all |
-| Minimum length | `desc-min-length` | warn (20 chars) | "Gets data" — too vague for an LLM to understand |
-| Maximum length | `desc-max-length` | warn (200 chars) | Overly long descriptions that waste context window |
-| Action clarity | `desc-action-verb` | warn | Description should start with a verb ("Retrieves…", "Creates…") |
-| No jargon/ambiguity | `desc-clarity` | info | Flags common vague terms: "handles", "processes", "manages" |
-| Differentiation | `desc-unique` | warn | Two tools with nearly identical descriptions — LLM won't know which to pick |
+| Rule                | ID                 | Default          | What it catches                                                             |
+| ------------------- | ------------------ | ---------------- | --------------------------------------------------------------------------- |
+| Description exists  | `desc-exists`      | error            | Tool has no description at all                                              |
+| Minimum length      | `desc-min-length`  | warn (20 chars)  | "Gets data" — too vague for an LLM to understand                            |
+| Maximum length      | `desc-max-length`  | warn (200 chars) | Overly long descriptions that waste context window                          |
+| Action clarity      | `desc-action-verb` | warn             | Description should start with a verb ("Retrieves…", "Creates…")             |
+| No jargon/ambiguity | `desc-clarity`     | info             | Flags common vague terms: "handles", "processes", "manages"                 |
+| Differentiation     | `desc-unique`      | warn             | Two tools with nearly identical descriptions — LLM won't know which to pick |
 
 #### 3.2 Input Schemas
 
-| Rule | ID | Default | What it catches |
-|---|---|---|---|
-| Schema exists | `schema-exists` | error | Tool accepts input but has no schema defined |
-| Valid JSON Schema | `schema-valid` | error | Schema doesn't conform to JSON Schema spec |
-| Param descriptions | `schema-param-desc` | warn | Parameters missing descriptions — LLM guesses what to pass |
-| Required fields marked | `schema-required` | warn | Required params not marked, LLM may omit them |
-| Enum over boolean | `schema-enum-bool` | info | `isDetailed: boolean` vs `detail_level: "summary" | "full"` — enums are clearer |
-| No `any` types | `schema-no-any` | warn | Untyped parameters — LLM has no guidance |
-| Default values | `schema-defaults` | info | Optional params without defaults — LLM doesn't know what happens if omitted |
+| Rule                   | ID                  | Default | What it catches                                                             |
+| ---------------------- | ------------------- | ------- | --------------------------------------------------------------------------- | --------------------------- |
+| Schema exists          | `schema-exists`     | error   | Tool accepts input but has no schema defined                                |
+| Valid JSON Schema      | `schema-valid`      | error   | Schema doesn't conform to JSON Schema spec                                  |
+| Param descriptions     | `schema-param-desc` | warn    | Parameters missing descriptions — LLM guesses what to pass                  |
+| Required fields marked | `schema-required`   | warn    | Required params not marked, LLM may omit them                               |
+| Enum over boolean      | `schema-enum-bool`  | info    | `isDetailed: boolean` vs `detail_level: "summary"                           | "full"` — enums are clearer |
+| No `any` types         | `schema-no-any`     | warn    | Untyped parameters — LLM has no guidance                                    |
+| Default values         | `schema-defaults`   | info    | Optional params without defaults — LLM doesn't know what happens if omitted |
 
 #### 3.3 Naming
 
-| Rule | ID | Default | What it catches |
-|---|---|---|---|
-| Convention | `name-convention` | warn | Inconsistent naming (mix of camelCase, snake_case, kebab-case) |
-| Verb-noun pattern | `name-verb-noun` | info | `weather` vs `get_weather` — verb+noun is clearer for LLMs |
-| No collisions | `name-unique` | error | Duplicate tool names |
-| Prefix grouping | `name-prefix` | info | Related tools should share prefix: `file_read`, `file_write`, `file_delete` |
+| Rule              | ID                | Default | What it catches                                                             |
+| ----------------- | ----------------- | ------- | --------------------------------------------------------------------------- |
+| Convention        | `name-convention` | warn    | Inconsistent naming (mix of camelCase, snake_case, kebab-case)              |
+| Verb-noun pattern | `name-verb-noun`  | info    | `weather` vs `get_weather` — verb+noun is clearer for LLMs                  |
+| No collisions     | `name-unique`     | error   | Duplicate tool names                                                        |
+| Prefix grouping   | `name-prefix`     | info    | Related tools should share prefix: `file_read`, `file_write`, `file_delete` |
 
 #### 3.4 Error Handling
 
-| Rule | ID | Default | What it catches |
-|---|---|---|---|
-| Error content | `error-content` | warn | Tool returns generic errors without actionable info |
-| Error differentiation | `error-types` | info | Same error for all failure modes — LLM can't retry intelligently |
+| Rule                  | ID              | Default | What it catches                                                  |
+| --------------------- | --------------- | ------- | ---------------------------------------------------------------- |
+| Error content         | `error-content` | warn    | Tool returns generic errors without actionable info              |
+| Error differentiation | `error-types`   | info    | Same error for all failure modes — LLM can't retry intelligently |
 
 ### Output format
 
@@ -164,7 +164,7 @@ agentdx lint --format sarif > lint-results.sarif  # for GitHub Actions integrati
 # .github/workflows/agentdx.yml
 - name: AgentDX Lint
   run: npx agentdx lint --format sarif > results.sarif
-  
+
 - name: Upload SARIF
   uses: github/codeql-action/upload-sarif@v3
   with:
@@ -219,24 +219,24 @@ scenarios:
     expect:
       tool: get_weather
       params:
-        city: "Tokyo"
-    
-  - task: "Compare weather in Rome and Paris"
+        city: 'Tokyo'
+
+  - task: 'Compare weather in Rome and Paris'
     expect:
       tools: [get_weather, get_weather]
-      description: "Should call get_weather for both cities"
-    
-  - task: "Will it rain tomorrow in Berlin?"
+      description: 'Should call get_weather for both cities'
+
+  - task: 'Will it rain tomorrow in Berlin?'
     expect:
       tool: get_forecast
       params:
-        city: "Berlin"
-    tags: [disambiguation]  # tests if LLM picks forecast over current weather
-    
-  - task: "Set the temperature to 25 degrees"
+        city: 'Berlin'
+    tags: [disambiguation] # tests if LLM picks forecast over current weather
+
+  - task: 'Set the temperature to 25 degrees'
     expect:
       tool: none
-      description: "Should refuse — no tool can set temperature"
+      description: 'Should refuse — no tool can set temperature'
     tags: [negative]
 ```
 
@@ -290,22 +290,22 @@ When a tool returns an error, does the LLM:
 
 The overall score (0–100) is a weighted composite:
 
-| Dimension | Weight | Description |
-|---|---|---|
-| Tool Selection | 35% | Right tool for the job |
-| Parameter Accuracy | 30% | Correct inputs |
-| Ambiguity Handling | 15% | Graceful with unclear tasks |
-| Multi-tool | 10% | Orchestration and composition |
-| Error Recovery | 10% | Resilience to failures |
+| Dimension          | Weight | Description                   |
+| ------------------ | ------ | ----------------------------- |
+| Tool Selection     | 35%    | Right tool for the job        |
+| Parameter Accuracy | 30%    | Correct inputs                |
+| Ambiguity Handling | 15%    | Graceful with unclear tasks   |
+| Multi-tool         | 10%    | Orchestration and composition |
+| Error Recovery     | 10%    | Resilience to failures        |
 
 Score bands:
 
-| Score | Rating | Meaning |
-|---|---|---|
-| 90–100 | Excellent | LLMs reliably use this server |
-| 75–89 | Good | Works well with minor confusion |
-| 50–74 | Needs work | LLMs frequently misuse tools |
-| 0–49 | Poor | LLMs struggle to use this server |
+| Score  | Rating     | Meaning                          |
+| ------ | ---------- | -------------------------------- |
+| 90–100 | Excellent  | LLMs reliably use this server    |
+| 75–89  | Good       | Works well with minor confusion  |
+| 50–74  | Needs work | LLMs frequently misuse tools     |
+| 0–49   | Poor       | LLMs struggle to use this server |
 
 ### Output format
 
@@ -476,22 +476,22 @@ AgentDX spawns the server and connects as an MCP client. It calls `tools/list` t
 
 ## 9. Tech Stack
 
-| Layer | Choice | Rationale |
-|---|---|---|
-| Language | TypeScript 5.x (strict, ESM) | MCP ecosystem is TS-native |
-| Runtime | Node.js 22+ | Required for MCP SDK |
-| CLI framework | Commander.js | Already implemented, lightweight |
-| Interactive prompts | @clack/prompts | Already implemented |
-| MCP connectivity | @modelcontextprotocol/sdk | Official SDK, Client class |
-| Schema validation | zod v4, Ajv | Validate tool schemas |
-| LLM (primary) | @anthropic-ai/sdk | Best MCP understanding |
-| LLM (secondary) | openai SDK | OpenAI + Ollama compatible |
-| Config | yaml | Parse agentdx.config.yaml |
-| Process management | execa | Spawn MCP servers |
-| File watching | chokidar | Dev command hot-reload |
-| Build | tsup | Fast ESM bundling |
-| Dev runner | tsx | Fast TS execution |
-| Test | Vitest | Unit + integration tests |
+| Layer               | Choice                       | Rationale                        |
+| ------------------- | ---------------------------- | -------------------------------- |
+| Language            | TypeScript 5.x (strict, ESM) | MCP ecosystem is TS-native       |
+| Runtime             | Node.js 22+                  | Required for MCP SDK             |
+| CLI framework       | Commander.js                 | Already implemented, lightweight |
+| Interactive prompts | @clack/prompts               | Already implemented              |
+| MCP connectivity    | @modelcontextprotocol/sdk    | Official SDK, Client class       |
+| Schema validation   | zod v4, Ajv                  | Validate tool schemas            |
+| LLM (primary)       | @anthropic-ai/sdk            | Best MCP understanding           |
+| LLM (secondary)     | openai SDK                   | OpenAI + Ollama compatible       |
+| Config              | yaml                         | Parse agentdx.config.yaml        |
+| Process management  | execa                        | Spawn MCP servers                |
+| File watching       | chokidar                     | Dev command hot-reload           |
+| Build               | tsup                         | Fast ESM bundling                |
+| Dev runner          | tsx                          | Fast TS execution                |
+| Test                | Vitest                       | Unit + integration tests         |
 
 ---
 
@@ -567,12 +567,14 @@ agentdx/
 ## 11. Roadmap
 
 ### Phase 0 — Foundation (done)
+
 - [x] CLI skeleton with Commander
 - [x] `agentdx init` — scaffold MCP server projects
 - [x] `agentdx dev` — REPL + hot-reload
 - [x] Published to npm as `agentdx`
 
 ### Phase 1 — Lint (next)
+
 - [ ] Core shared module: spawn server, connect, list tools (`src/core/mcp-client.ts`)
 - [ ] Auto-detection: entry point, transport, tools
 - [ ] Lint rule engine with all rules from section 3
@@ -581,6 +583,7 @@ agentdx/
 - [ ] `agentdx lint` works zero-config in any MCP server project
 
 ### Phase 2 — Bench
+
 - [ ] LLM adapter: Anthropic, OpenAI, Ollama
 - [ ] Scenario auto-generation from tool definitions
 - [ ] Custom scenario YAML loader
@@ -590,6 +593,7 @@ agentdx/
 - [ ] `agentdx bench` produces the score
 
 ### Phase 3 — Polish & Share
+
 - [ ] GitHub Actions example in README
 - [ ] `--fix` for auto-fixable lint rules
 - [ ] Comparison mode: bench against multiple models

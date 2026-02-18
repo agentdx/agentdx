@@ -8,9 +8,9 @@ const SYMBOLS: Record<LintSeverity, string> = {
 };
 
 const COLORS: Record<LintSeverity, string> = {
-  error: '\x1b[31m',  // red
-  warn: '\x1b[33m',   // yellow
-  info: '\x1b[36m',   // cyan
+  error: '\x1b[31m', // red
+  warn: '\x1b[33m', // yellow
+  info: '\x1b[36m', // cyan
 };
 
 const RESET = '\x1b[0m';
@@ -27,7 +27,11 @@ export interface FormatTextOptions {
 /**
  * Format lint results as colored terminal text.
  */
-export function formatText(result: LintResult, serverName?: string, options: FormatTextOptions = {}): string {
+export function formatText(
+  result: LintResult,
+  serverName?: string,
+  options: FormatTextOptions = {},
+): string {
   const lines: string[] = [];
   const toolCount = result.tools.length;
   const header = serverName

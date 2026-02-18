@@ -2,12 +2,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import type { Transport } from './types.js';
 
-const ENTRY_CANDIDATES = [
-  'src/index.ts',
-  'src/index.js',
-  'index.ts',
-  'index.js',
-];
+const ENTRY_CANDIDATES = ['src/index.ts', 'src/index.js', 'index.ts', 'index.js'];
 
 /**
  * Auto-detect the server entry point.
@@ -35,11 +30,7 @@ export function detectEntry(dir = process.cwd(), configEntry?: string): string |
       };
 
       const binEntry =
-        typeof pkg.bin === 'string'
-          ? pkg.bin
-          : pkg.bin
-            ? Object.values(pkg.bin)[0]
-            : undefined;
+        typeof pkg.bin === 'string' ? pkg.bin : pkg.bin ? Object.values(pkg.bin)[0] : undefined;
 
       const candidate = binEntry ?? pkg.main;
       if (candidate && existsSync(resolve(dir, candidate))) {

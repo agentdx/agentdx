@@ -13,11 +13,7 @@ function tool(name: string): ToolDefinition {
 
 describe('name-convention', () => {
   it('flags inconsistent naming', () => {
-    const issues = nameConvention.check([
-      tool('get_user'),
-      tool('listPosts'),
-      tool('delete_item'),
-    ]);
+    const issues = nameConvention.check([tool('get_user'), tool('listPosts'), tool('delete_item')]);
     expect(issues).toHaveLength(1);
     expect(issues[0]!.message).toContain('camelCase');
   });

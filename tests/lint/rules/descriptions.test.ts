@@ -10,7 +10,11 @@ import {
 } from '../../../src/lint/rules/descriptions.js';
 
 function tool(overrides: Partial<ToolDefinition> & { name: string }): ToolDefinition {
-  return { name: overrides.name, description: overrides.description, inputSchema: overrides.inputSchema };
+  return {
+    name: overrides.name,
+    description: overrides.description,
+    inputSchema: overrides.inputSchema,
+  };
 }
 
 describe('desc-exists', () => {
@@ -26,7 +30,9 @@ describe('desc-exists', () => {
   });
 
   it('passes when description exists', () => {
-    const issues = descExists.check([tool({ name: 'get_user', description: 'Retrieves a user by ID' })]);
+    const issues = descExists.check([
+      tool({ name: 'get_user', description: 'Retrieves a user by ID' }),
+    ]);
     expect(issues).toHaveLength(0);
   });
 });
@@ -39,7 +45,9 @@ describe('desc-min-length', () => {
   });
 
   it('passes adequate description', () => {
-    const issues = descMinLength.check([tool({ name: 'get_user', description: 'Retrieves a user profile by their unique ID' })]);
+    const issues = descMinLength.check([
+      tool({ name: 'get_user', description: 'Retrieves a user profile by their unique ID' }),
+    ]);
     expect(issues).toHaveLength(0);
   });
 });
@@ -52,33 +60,46 @@ describe('desc-max-length', () => {
   });
 
   it('passes normal description', () => {
-    const issues = descMaxLength.check([tool({ name: 'get_user', description: 'Retrieves a user by ID' })]);
+    const issues = descMaxLength.check([
+      tool({ name: 'get_user', description: 'Retrieves a user by ID' }),
+    ]);
     expect(issues).toHaveLength(0);
   });
 });
 
 describe('desc-action-verb', () => {
   it('flags description not starting with verb', () => {
-    const issues = descActionVerb.check([tool({ name: 'get_user', description: 'A tool that retrieves users' })]);
+    const issues = descActionVerb.check([
+      tool({ name: 'get_user', description: 'A tool that retrieves users' }),
+    ]);
     expect(issues).toHaveLength(1);
     expect(issues[0]!.message).toContain('start with a verb');
   });
 
   it('passes description starting with verb', () => {
-    const issues = descActionVerb.check([tool({ name: 'get_user', description: 'Retrieves a user by ID' })]);
+    const issues = descActionVerb.check([
+      tool({ name: 'get_user', description: 'Retrieves a user by ID' }),
+    ]);
     expect(issues).toHaveLength(0);
   });
 });
 
 describe('desc-clarity', () => {
   it('flags vague terms', () => {
-    const issues = descClarity.check([tool({ name: 'do_stuff', description: 'Handles various data processing tasks' })]);
+    const issues = descClarity.check([
+      tool({ name: 'do_stuff', description: 'Handles various data processing tasks' }),
+    ]);
     expect(issues).toHaveLength(1);
     expect(issues[0]!.message).toContain('vague term');
   });
 
   it('passes specific descriptions', () => {
-    const issues = descClarity.check([tool({ name: 'get_user', description: 'Retrieves a user profile by their unique identifier' })]);
+    const issues = descClarity.check([
+      tool({
+        name: 'get_user',
+        description: 'Retrieves a user profile by their unique identifier',
+      }),
+    ]);
     expect(issues).toHaveLength(0);
   });
 });
