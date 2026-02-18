@@ -17,7 +17,7 @@ const result: LintResult = {
   ],
 };
 
-describe('formatText', () => {
+describe('formatText (pretty)', () => {
   it('includes header with tool count', () => {
     const output = formatText(result, 'test-server');
     expect(output).toContain('AgentDX Lint');
@@ -37,10 +37,52 @@ describe('formatText', () => {
     expect(output).toContain('Lint Score: 80/100');
   });
 
+  it('shows summary line with counts', () => {
+    const output = formatText(result);
+    expect(output).toContain('rules passed');
+    expect(output).toContain('1 warning');
+    expect(output).toContain('1 error');
+  });
+
   it('shows no issues message when clean', () => {
     const clean: LintResult = { score: 100, tools: [{ name: 'a' }], issues: [] };
     const output = formatText(clean);
-    expect(output).toContain('No issues found');
+    expect(output).toContain('All');
+    expect(output).toContain('rules passed');
+  });
+
+  it('shows fix suggestions when enabled', () => {
+    const resultWithFix: LintResult = {
+      score: 80,
+      tools: [{ name: 'a' }],
+      issues: [
+        {
+          rule: 'test-rule',
+          severity: 'warn',
+          message: 'something wrong',
+          fix: 'Do this to fix it',
+        },
+      ],
+    };
+    const output = formatText(resultWithFix, undefined, { fixSuggestions: true });
+    expect(output).toContain('Do this to fix it');
+  });
+
+  it('hides fix suggestions by default', () => {
+    const resultWithFix: LintResult = {
+      score: 80,
+      tools: [{ name: 'a' }],
+      issues: [
+        {
+          rule: 'test-rule',
+          severity: 'warn',
+          message: 'something wrong',
+          fix: 'Do this to fix it',
+        },
+      ],
+    };
+    const output = formatText(resultWithFix);
+    expect(output).not.toContain('Do this to fix it');
   });
 });
 

@@ -182,3 +182,137 @@ export const schemaDefaults: LintRule = {
     return issues;
   },
 };
+
+export const paramEnumDocumented: LintRule = {
+  id: 'param-enum-documented',
+  description: 'Enum parameters should document what each value means',
+  severity: 'warn',
+  check(tools) {
+    const issues: LintIssue[] = [];
+    for (const tool of tools) {
+      const props = getProperties(tool);
+      for (const [name, prop] of Object.entries(props)) {
+        if (prop.enum && Array.isArray(prop.enum) && prop.enum.length > 0) {
+          const desc = prop.description ?? '';
+          // Check if the description mentions the enum values
+          const mentionedValues = prop.enum.filter((v) =>
+            desc.toLowerCase().includes(String(v).toLowerCase()),
+          );
+          if (mentionedValues.length < prop.enum.length / 2) {
+            issues.push({
+              rule: this.id,
+              severity: this.severity,
+              message: `${tool.name}: parameter "${name}" has enum values [${prop.enum.map(String).join(', ')}] but doesn't document what they mean`,
+              tool: tool.name,
+              param: name,
+              fix: `Add descriptions for each enum value in the parameter description, e.g. '"celsius" = metric, "fahrenheit" = imperial'`,
+              docs: 'https://spec.modelcontextprotocol.io/specification/2025-03-26/server/tools/',
+            });
+          }
+        }
+      }
+    }
+    return issues;
+  },
+};
+
+export const paramDefaultDocumented: LintRule = {
+  id: 'param-default-documented',
+  description: 'Parameters with defaults should state the default value',
+  severity: 'info',
+  check(tools) {
+    const issues: LintIssue[] = [];
+    for (const tool of tools) {
+      const props = getProperties(tool);
+      for (const [name, prop] of Object.entries(props)) {
+        if (prop.default !== undefined) {
+          const desc = prop.description ?? '';
+          const defaultStr = String(prop.default);
+          if (!desc.toLowerCase().includes(defaultStr.toLowerCase()) && !desc.includes('default')) {
+            issues.push({
+              rule: this.id,
+              severity: this.severity,
+              message: `${tool.name}: parameter "${name}" has default ${JSON.stringify(prop.default)} but description doesn't mention it`,
+              tool: tool.name,
+              param: name,
+              fix: `Add "Defaults to ${defaultStr}" to the parameter description`,
+              docs: 'https://spec.modelcontextprotocol.io/specification/2025-03-26/server/tools/',
+            });
+          }
+        }
+      }
+    }
+    return issues;
+  },
+};
+
+function measureDepth(schema: unknown, current = 0): number {
+  if (!schema || typeof schema !== 'object') return current;
+  const obj = schema as Record<string, unknown>;
+  let maxDepth = current;
+
+  if (obj.properties && typeof obj.properties === 'object') {
+    for (const value of Object.values(obj.properties as Record<string, unknown>)) {
+      if (value && typeof value === 'object') {
+        const child = value as Record<string, unknown>;
+        if (child.type === 'object' || child.properties) {
+          maxDepth = Math.max(maxDepth, measureDepth(child, current + 1));
+        } else if (child.type === 'array' && child.items && typeof child.items === 'object') {
+          const items = child.items as Record<string, unknown>;
+          if (items.type === 'object' || items.properties) {
+            maxDepth = Math.max(maxDepth, measureDepth(items, current + 1));
+          }
+        }
+      }
+    }
+  }
+  return maxDepth;
+}
+
+export const schemaNotTooDeep: LintRule = {
+  id: 'schema-not-too-deep',
+  description: 'Input schema nesting should not exceed depth 3',
+  severity: 'warn',
+  check(tools) {
+    const issues: LintIssue[] = [];
+    for (const tool of tools) {
+      if (!tool.inputSchema) continue;
+      const depth = measureDepth(tool.inputSchema);
+      if (depth > 3) {
+        issues.push({
+          rule: this.id,
+          severity: this.severity,
+          message: `${tool.name}: schema nesting depth is ${depth} — LLM performance drops 47% with deep nesting`,
+          tool: tool.name,
+          fix: `Flatten the schema by using separate tools or simplifying nested objects`,
+          docs: 'https://arxiv.org/abs/2602.14878',
+        });
+      }
+    }
+    return issues;
+  },
+};
+
+export const schemaNoExcessiveParams: LintRule = {
+  id: 'schema-no-excessive-params',
+  description: 'Too many parameters overwhelms agents',
+  severity: 'warn',
+  check(tools) {
+    const issues: LintIssue[] = [];
+    for (const tool of tools) {
+      const props = getProperties(tool);
+      const paramCount = Object.keys(props).length;
+      if (paramCount > 10) {
+        issues.push({
+          rule: this.id,
+          severity: this.severity,
+          message: `${tool.name}: has ${paramCount} parameters — agents struggle with large parameter spaces`,
+          tool: tool.name,
+          fix: `Split into multiple focused tools or group related parameters into objects`,
+          docs: 'https://arxiv.org/abs/2602.14878',
+        });
+      }
+    }
+    return issues;
+  },
+};

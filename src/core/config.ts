@@ -19,15 +19,6 @@ const ConfigSchema = z
         rules: z.record(z.union([z.string(), z.number(), z.boolean()])).optional(),
       })
       .optional(),
-    bench: z
-      .object({
-        provider: z.string().optional(),
-        model: z.string().optional(),
-        scenarios: z.string().optional(),
-        runs: z.number().int().positive().optional(),
-        temperature: z.number().min(0).max(2).optional(),
-      })
-      .optional(),
   })
   .passthrough();
 
@@ -38,13 +29,6 @@ const DEFAULT_CONFIG: ResolvedConfig = {
   transport: 'stdio',
   lint: {
     rules: {},
-  },
-  bench: {
-    provider: 'anthropic',
-    model: 'claude-sonnet-4-5-20250929',
-    scenarios: 'auto',
-    runs: 3,
-    temperature: 0,
   },
 };
 
@@ -62,6 +46,18 @@ export function loadConfig(dir = process.cwd()): RawConfig | undefined {
 }
 
 /**
+ * Load a .agentdxrc.json config file from the given directory.
+ * Returns undefined if the file does not exist.
+ */
+export function loadRcConfig(dir = process.cwd()): RawConfig | undefined {
+  const filePath = resolve(dir, '.agentdxrc.json');
+  if (!existsSync(filePath)) return undefined;
+
+  const raw = JSON.parse(readFileSync(filePath, 'utf-8')) as unknown;
+  return ConfigSchema.parse(raw);
+}
+
+/**
  * Merge a raw config (if any) with defaults to produce a fully resolved config.
  * The `entry` field is NOT resolved here — use `detectEntry()` for that.
  */
@@ -75,13 +71,6 @@ export function resolveConfig(raw?: RawConfig): ResolvedConfig {
         ...DEFAULT_CONFIG.lint.rules,
         ...(raw?.lint?.rules as Record<string, string | number | boolean> | undefined),
       },
-    },
-    bench: {
-      provider: raw?.bench?.provider ?? DEFAULT_CONFIG.bench.provider,
-      model: raw?.bench?.model ?? DEFAULT_CONFIG.bench.model,
-      scenarios: raw?.bench?.scenarios ?? DEFAULT_CONFIG.bench.scenarios,
-      runs: raw?.bench?.runs ?? DEFAULT_CONFIG.bench.runs,
-      temperature: raw?.bench?.temperature ?? DEFAULT_CONFIG.bench.temperature,
     },
   };
 }

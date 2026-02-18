@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
-import { loadConfig, resolveConfig } from '../../src/core/config.js';
+import { loadConfig, loadRcConfig, resolveConfig } from '../../src/core/config.js';
 
 const testDir = join(tmpdir(), `agentdx-config-test-${process.pid}`);
 
@@ -47,25 +47,36 @@ describe('loadConfig', () => {
   });
 });
 
+describe('loadRcConfig', () => {
+  it('returns undefined when no rc file exists', () => {
+    expect(loadRcConfig(testDir)).toBeUndefined();
+  });
+
+  it('parses a valid .agentdxrc.json file', () => {
+    writeFileSync(
+      join(testDir, '.agentdxrc.json'),
+      JSON.stringify({ lint: { rules: { 'desc-exists': 'off' } } }),
+    );
+    const config = loadRcConfig(testDir);
+    expect(config).toBeDefined();
+    expect(config!.lint?.rules?.['desc-exists']).toBe('off');
+  });
+});
+
 describe('resolveConfig', () => {
   it('returns defaults when no raw config', () => {
     const resolved = resolveConfig();
     expect(resolved.entry).toBe('');
     expect(resolved.transport).toBe('stdio');
-    expect(resolved.bench.provider).toBe('anthropic');
-    expect(resolved.bench.runs).toBe(3);
-    expect(resolved.bench.temperature).toBe(0);
+    expect(resolved.lint.rules).toEqual({});
   });
 
   it('merges raw config with defaults', () => {
     const resolved = resolveConfig({
       server: { entry: 'src/main.ts', transport: 'sse' },
-      bench: { runs: 10 },
     });
     expect(resolved.entry).toBe('src/main.ts');
     expect(resolved.transport).toBe('sse');
-    expect(resolved.bench.runs).toBe(10);
-    expect(resolved.bench.provider).toBe('anthropic');
   });
 
   it('supports legacy entrypoint field', () => {
@@ -73,5 +84,13 @@ describe('resolveConfig', () => {
       server: { entrypoint: 'src/server.ts' },
     });
     expect(resolved.entry).toBe('src/server.ts');
+  });
+
+  it('merges lint rule overrides', () => {
+    const resolved = resolveConfig({
+      lint: { rules: { 'desc-exists': 'off', 'schema-exists': 'info' } },
+    });
+    expect(resolved.lint.rules['desc-exists']).toBe('off');
+    expect(resolved.lint.rules['schema-exists']).toBe('info');
   });
 });

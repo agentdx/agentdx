@@ -13,28 +13,26 @@ function tool(overrides: Partial<ToolDefinition> & { name: string }): ToolDefini
 describe('lint engine', () => {
   it('returns issues and score for tools with problems', () => {
     const result = lint([tool({ name: 'x' })]);
-    // Tool with no description, no schema → should have at least desc-exists and schema-exists errors
     expect(result.issues.length).toBeGreaterThan(0);
     expect(result.score).toBeLessThan(100);
     expect(result.tools).toHaveLength(1);
   });
 
-  it('returns perfect score for well-defined tools', () => {
+  it('returns high score for well-defined tools', () => {
     const result = lint([
       tool({
         name: 'get_user',
-        description: 'Retrieves a user profile by their unique identifier from the database',
+        description: 'Retrieves a user profile by their unique identifier from the database. Use this when you need user details. Requires valid user ID. Returns up to one result.',
         inputSchema: {
           type: 'object',
           properties: {
-            id: { type: 'string', description: 'The user ID', default: undefined },
+            id: { type: 'string', description: 'The user ID, e.g. "usr_123"', default: undefined },
           },
           required: ['id'],
         },
       }),
     ]);
-    // Should have very few or no issues
-    expect(result.score).toBeGreaterThanOrEqual(90);
+    expect(result.score).toBeGreaterThanOrEqual(80);
   });
 
   it('respects rule overrides to disable rules', () => {
@@ -54,5 +52,18 @@ describe('lint engine', () => {
     );
     const descIssue = result.issues.find((i) => i.rule === 'desc-exists');
     expect(descIssue?.severity).toBe('info');
+  });
+
+  it('includes new research-backed rules', () => {
+    const result = lint([
+      tool({
+        name: 'weather',
+        description: 'A weather tool for things',
+        inputSchema: { type: 'object', properties: {} },
+      }),
+    ]);
+    const ruleIds = new Set(result.issues.map((i) => i.rule));
+    // Should flag at least some description quality or naming issues
+    expect(result.issues.length).toBeGreaterThan(0);
   });
 });

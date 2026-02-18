@@ -5,28 +5,27 @@
 [![node](https://img.shields.io/node/v/agentdx)](package.json)
 [![tests](https://github.com/agentdx/agentdx/actions/workflows/ci.yml/badge.svg)](https://github.com/agentdx/agentdx/actions)
 
-**What's your MCP server's Agent DX Score?**
+**ESLint for MCP servers.**
 
-AgentDX measures how well AI agents can actually use your MCP server. It catches vague descriptions, broken schemas, and ambiguous tool names that make LLMs pick the wrong tool.
+AgentDX is a linter that catches the tool description, schema, and naming problems that make LLMs pick the wrong tool, guess parameters, and fail silently. No API keys needed — runs in seconds.
 
 ```bash
-npx agentdx lint    # Static analysis — fast, free, no LLM needed
-npx agentdx bench   # LLM evaluation — produces the Agent DX Score (0-100)
+npx agentdx lint
 ```
 
 ## Why?
 
-MCP servers are being built faster than ever. But most of them have:
+Research shows **97.1% of MCP tools have description quality issues** ([arxiv 2602.14878](https://arxiv.org/abs/2602.14878)). Common problems:
+
 - Tool descriptions too vague for an LLM to understand
 - Missing parameter descriptions — the LLM guesses what to pass
 - Similar tools with overlapping names — the LLM picks the wrong one
-- No error handling — the LLM doesn't know what went wrong
+- Deeply nested schemas — LLM performance drops 47% with complex nesting
+- Too many tools — selection accuracy degrades past 20 tools
 
 **AgentDX finds these problems before your users do.**
 
 ## Quick Start
-
-### Lint — static analysis (free, no LLM)
 
 ```bash
 cd my-mcp-server
@@ -41,24 +40,9 @@ AgentDX Lint — my-weather-server (5 tools)
 ⚠ warn   get_alerts: description is 12 chars — too vague          [desc-min-length]
 ✓ pass   naming is consistent (snake_case)
 
-Lint Score: 58/100
-```
+✓ 22 rules passed | ⚠ 2 warnings | ✗ 1 error
 
-### Bench — LLM evaluation (produces Agent DX Score)
-
-```bash
-export ANTHROPIC_API_KEY=sk-ant-...
-npx agentdx bench
-```
-
-```
-Agent DX Score: 78/100 — Good
-
-Tool Selection     92%  (17/18 correct)
-Parameter Accuracy 68%  (units param confused in 4 cases)
-Error Recovery     50%  (LLM can't parse error format)
-
-Top fix: add default "celsius" to units param — LLM omits it 60% of the time
+Lint Score: 84/100
 ```
 
 ## Install
@@ -68,34 +52,58 @@ npm install -g agentdx
 # or use npx for zero-install
 ```
 
-## How It Works
+## Rules
 
-### Lint (19 rules across 4 categories)
+AgentDX ships with 30 rules across 4 categories, informed by academic research and real-world LLM behavior.
 
-Static analysis checks tool descriptions, input schemas, naming conventions, and error handling patterns. No LLM required — runs in seconds.
+### Description Quality (10 rules)
 
-Output formats: `text` (default), `json`, `sarif` (for GitHub Code Scanning).
-
-### Bench (5 evaluation dimensions)
-
-Sends your tool definitions to a real LLM and measures how well it can use them:
-
-| Dimension | Weight | What it measures |
+| Rule | Severity | What it checks |
 |---|---|---|
-| Tool Selection | 35% | Does the LLM pick the right tool? |
-| Parameter Accuracy | 30% | Does it fill parameters correctly? |
-| Ambiguity Handling | 15% | Does it ask for clarification when needed? |
-| Multi-tool | 10% | Can it compose multiple tool calls? |
-| Error Recovery | 10% | Does it handle errors gracefully? |
+| `desc-exists` | error | Tool has a description |
+| `desc-min-length` | warn | Description is at least 20 characters |
+| `desc-max-length` | warn | Description is under 200 characters |
+| `desc-action-verb` | warn | Description starts with a verb ("Retrieves...", "Creates...") |
+| `desc-clarity` | info | Flags vague terms like "handles", "processes", "misc" |
+| `desc-unique` | warn | No two tools have near-identical descriptions |
+| `description-states-purpose` | warn | Description clearly states what the tool does |
+| `description-includes-usage-guidance` | info | Explains when or how to use the tool |
+| `description-states-limitations` | info | Mentions constraints, rate limits, or caveats |
+| `description-has-examples` | info | Complex tools (3+ params) include example inputs |
 
-Scenarios are auto-generated from your tool definitions. Each runs multiple times (default 3) with majority voting for consistency. Evaluations run concurrently for speed.
+### Schema & Parameters (11 rules)
 
-| Score | Rating |
-|---|---|
-| 90–100 | Excellent — LLMs reliably use this server |
-| 75–89 | Good — works well with minor confusion |
-| 50–74 | Needs work — LLMs frequently misuse tools |
-| 0–49 | Poor — LLMs struggle to use this server |
+| Rule | Severity | What it checks |
+|---|---|---|
+| `schema-exists` | error | Tool defines an input schema |
+| `schema-valid` | error | Schema type is "object" |
+| `schema-param-desc` | warn | Every parameter has a description |
+| `schema-required` | warn | Required parameters are marked |
+| `schema-enum-bool` | info | Suggests enums over booleans for clarity |
+| `schema-no-any` | warn | Every parameter has a type |
+| `schema-defaults` | info | Optional parameters document defaults |
+| `param-enum-documented` | warn | Enum values are explained in description |
+| `param-default-documented` | info | Default values are mentioned in description |
+| `schema-not-too-deep` | warn | Nesting doesn't exceed depth 3 |
+| `schema-no-excessive-params` | warn | Tool has 10 or fewer parameters |
+
+### Naming Conventions (4 rules)
+
+| Rule | Severity | What it checks |
+|---|---|---|
+| `name-convention` | warn | Consistent naming (snake_case, camelCase, or kebab-case) |
+| `name-verb-noun` | info | Follows verb_noun pattern (e.g. `get_user`) |
+| `name-unique` | error | No duplicate tool names |
+| `name-prefix` | info | Related tools share a common prefix |
+
+### Provider Compatibility (4 rules)
+
+| Rule | Severity | What it checks |
+|---|---|---|
+| `openai-tool-count` | warn/error | Warns >20 tools, errors >128 (provider limits) |
+| `openai-name-length` | error | Names are ≤64 characters |
+| `openai-name-pattern` | error | Names match `/^[a-zA-Z0-9_-]+$/` |
+| `name-not-ambiguous` | warn | No generic names like "search", "get", "run" |
 
 ## Architecture
 
@@ -106,96 +114,107 @@ Scenarios are auto-generated from your tool definitions. Each runs multiple time
          │ imports entry functions only
     ┌────┴─────┐
     │  core/   │  MCP client, config, auto-detect
-    └──┬───┬───┘
-       │   │
-  ┌────┴┐ ┌┴────┐
-  │lint/│ │bench/│  Never import each other
-  └─────┘ └─────┘
+    └────┬─────┘
+         │
+    ┌────┴─────┐
+    │  lint/   │  Rule engine, rules, formatters
+    └──────────┘
 ```
 
-`cli/` orchestrates commands, `core/` provides shared infrastructure (MCP client, config loading, server auto-detection), and `lint/` and `bench/` are independent modules that never import from each other.
+`cli/` orchestrates commands, `core/` provides shared infrastructure (MCP client, config loading, server auto-detection), and `lint/` contains the rule engine, 30 rules across 4 categories, and 3 output formatters.
 
-## LLM Providers
-
-```bash
-# Anthropic (default)
-export ANTHROPIC_API_KEY=sk-ant-...
-npx agentdx bench
-
-# OpenAI
-npx agentdx bench --provider openai --model gpt-4o
-# requires OPENAI_API_KEY
-
-# Ollama (local, free)
-npx agentdx bench --provider ollama --model llama3.2
-# requires Ollama running locally
-```
-
-## Commands
-
-| Command | What it does | Needs LLM? |
-|---|---|---|
-| `agentdx lint` | Static analysis of tool quality | No |
-| `agentdx bench` | LLM-based Agent DX Score | Yes |
-| `agentdx init` | Scaffold a new MCP server | No |
-| `agentdx dev` | Dev server + REPL | No |
-
-### CLI Reference
+## CLI Reference
 
 ```
-Global options:
-  -v, --verbose           Show detailed output
-  --config <path>         Path to agentdx.config.yaml
+agentdx lint [options]
+
+Options:
+  -f, --format <format>   Output format: pretty (default), json, sarif
+  --fix-suggestions       Show concrete fix suggestions for each failing rule
+  --quiet                 Only show errors, suppress warnings and info (CI mode)
+  -c, --config <path>     Path to .agentdxrc.json config file
+  -v, --verbose           Enable verbose output
   --help                  Show help
   --version               Show version
-
-Lint options:
-  --format <fmt>          Output format: text (default), json, sarif
-  --fix                   Auto-fix what's possible
-  --rule <id>             Run only specific rule(s)
-  --severity <level>      Minimum severity: error, warn, info
-
-Bench options:
-  --provider <name>       LLM provider: anthropic (default), openai, ollama
-  --model <name>          Model to use (default: claude-sonnet-4-5-20250929)
-  --scenarios <path>      Path to custom scenarios YAML
-  --runs <n>              Runs per scenario (default: 3)
-  --format <fmt>          Output format: text (default), json
-  --no-confirm            Skip cost confirmation prompt
-  --temperature <n>       LLM temperature (default: 0)
-  --skip-error-recovery   Skip error recovery evaluation (faster, cheaper)
 ```
 
-## Configuration (optional)
+### Exit Codes
 
-AgentDX works zero-config. It auto-detects your server entry point. Optionally create `agentdx.config.yaml`:
+| Code | Meaning |
+|---|---|
+| `0` | All rules passed |
+| `1` | Errors found |
+| `2` | Warnings found (no errors) |
+
+### Output Formats
+
+- **`pretty`** (default) — colored terminal output with summary
+- **`json`** — structured JSON with score, issues, and tool list
+- **`sarif`** — SARIF v2.1.0 for GitHub Code Scanning integration
+
+## Configuration
+
+AgentDX works zero-config. It auto-detects your server entry point. Optionally configure rules via `agentdx.config.yaml` or `.agentdxrc.json`:
 
 ```yaml
+# agentdx.config.yaml
 server:
   entry: src/index.ts
   transport: stdio
 
 lint:
   rules:
-    description-min-length: 20
-    require-param-descriptions: true
+    desc-min-length: 30          # override threshold
+    schema-enum-bool: off         # disable rule
+    description-states-limitations: warn  # escalate to warning
+```
 
-bench:
-  provider: anthropic
-  model: claude-sonnet-4-5-20250929
-  runs: 3
-  concurrency: 5
+```json
+// .agentdxrc.json
+{
+  "lint": {
+    "rules": {
+      "desc-min-length": 30,
+      "schema-enum-bool": "off"
+    }
+  }
+}
 ```
 
 ## CI Integration
 
 ```yaml
 # .github/workflows/agentdx.yml
-- run: npx agentdx lint --format sarif > results.sarif
-- uses: github/codeql-action/upload-sarif@v3
-  with:
-    sarif_file: results.sarif
+name: Lint MCP Server
+on: [push, pull_request]
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install
+      - run: npx agentdx lint --format sarif > results.sarif
+      - uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: results.sarif
 ```
+
+Use `--quiet` for CI pipelines that should only fail on errors:
+
+```bash
+npx agentdx lint --quiet  # exit 0 unless errors found
+```
+
+## Research
+
+AgentDX rules are informed by academic research on LLM-tool interaction:
+
+- **"MCP Tool Descriptions Are Smelly"** ([arxiv 2602.14878](https://arxiv.org/abs/2602.14878)) — analyzed 1,899 MCP tools and found 97.1% have description quality issues. Identified 5 smell categories: missing purpose, missing guidance, vague language, missing constraints, and duplicates.
+
+- **Microsoft MCP Interviewer research** — found 775 naming collisions across the MCP ecosystem, tool selection accuracy drops past 20 tools, and deeply nested schemas (up to 20 levels) cause 47% performance degradation.
 
 ## Development
 
@@ -210,18 +229,11 @@ npm run typecheck  # tsc --noEmit
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for development guidelines.
 
-## Documentation
-
-- [Technical Specification](docs/SPEC.md) — detailed spec for lint rules, bench dimensions, scoring
-- [Architecture](docs/ARCHITECTURE.md) — internal architecture, data flow, module boundaries
-
 ## Roadmap
 
 - [x] CLI skeleton, `init`, `dev`
-- [x] `agentdx lint` — 19 rules, 3 formatters, lint score
-- [x] `agentdx bench` — 5 evaluators, 3 providers, Agent DX Score
+- [x] `agentdx lint` — 30 rules, 3 formatters, lint score
 - [ ] `--fix` for auto-fixable lint rules
-- [ ] Comparison mode: bench against multiple models
 - [ ] CI GitHub Action (`agentdx/lint-action`)
 - [ ] MCP server registry integration
 - [ ] Landing page at agentdx.dev
@@ -230,7 +242,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for development guidelines.
 
 We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for:
 - Development setup
-- How to add lint rules, evaluators, or LLM providers
+- How to add lint rules
 - PR guidelines and code style
 
 Please note that this project has a [Code of Conduct](CODE_OF_CONDUCT.md).

@@ -1,15 +1,15 @@
 {
   "name": "agentdx",
-  "version": "0.2.0-alpha.1",
-  "description": "The MCP developer toolkit. Scaffold, lint, test, benchmark, and publish MCP servers.",
+  "version": "0.3.0-alpha.1",
+  "description": "The linter for MCP servers. Catches what agents can't tell you.",
   "keywords": [
     "mcp",
-    "model-context-protocol",
-    "agent",
+    "linter",
+    "eslint",
+    "static-analysis",
     "developer-experience",
-    "cli",
-    "testing",
-    "benchmarking"
+    "agent-dx",
+    "model-context-protocol"
   ],
   "homepage": "https://github.com/agentdx/agentdx#readme",
   "bugs": {
@@ -38,14 +38,12 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.39.0",
     "@clack/prompts": "^0.10.0",
     "@modelcontextprotocol/sdk": "^1.12.1",
     "ajv": "^8.17.1",
     "chokidar": "^4.0.3",
     "commander": "^13.1.0",
     "execa": "^9.5.2",
-    "openai": "^4.86.2",
     "yaml": "^2.7.0",
     "zod": "^3.24.2"
   },

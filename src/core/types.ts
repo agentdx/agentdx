@@ -33,6 +33,8 @@ export interface LintIssue {
   message: string;
   tool?: string;
   param?: string;
+  fix?: string;
+  docs?: string;
 }
 
 /** Interface that all lint rules implement. */
@@ -62,12 +64,5 @@ export interface ResolvedConfig {
   };
   lint: {
     rules: Record<string, string | number | boolean>;
-  };
-  bench: {
-    provider: string;
-    model: string;
-    scenarios: string;
-    runs: number;
-    temperature: number;
   };
 }

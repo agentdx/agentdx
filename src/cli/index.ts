@@ -4,7 +4,6 @@ import { Command } from 'commander';
 import { registerInitCommand } from './commands/init.js';
 import { registerDevCommand } from './commands/dev.js';
 import { registerLintCommand } from './commands/lint.js';
-import { registerBenchCommand } from './commands/bench.js';
 
 function loadPackageJson(): { version: string } {
   let dir = import.meta.dirname;
@@ -27,7 +26,7 @@ const program = new Command();
 program
   .name('agentdx')
   .description(
-    'The MCP developer toolkit. Scaffold, lint, test, benchmark, and publish MCP servers.',
+    'The linter for MCP servers. Catches what agents can\'t tell you.',
   )
   .version(pkg.version)
   .option('-v, --verbose', 'Enable verbose output')
@@ -36,6 +35,5 @@ program
 registerInitCommand(program);
 registerDevCommand(program);
 registerLintCommand(program);
-registerBenchCommand(program);
 
 program.parse();

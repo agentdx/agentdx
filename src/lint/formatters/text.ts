@@ -1,4 +1,5 @@
 import type { LintResult, LintSeverity } from '../../core/types.js';
+import { allRules } from '../rules/index.js';
 
 const SYMBOLS: Record<LintSeverity, string> = {
   error: '\u2717 error',
@@ -16,12 +17,17 @@ const RESET = '\x1b[0m';
 const BOLD = '\x1b[1m';
 const DIM = '\x1b[2m';
 const GREEN = '\x1b[32m';
+const RED = '\x1b[31m';
+const YELLOW = '\x1b[33m';
+
+export interface FormatTextOptions {
+  fixSuggestions?: boolean;
+}
 
 /**
  * Format lint results as colored terminal text.
- * Matches the spec output format from SPEC.md section 3.
  */
-export function formatText(result: LintResult, serverName?: string): string {
+export function formatText(result: LintResult, serverName?: string, options: FormatTextOptions = {}): string {
   const lines: string[] = [];
   const toolCount = result.tools.length;
   const header = serverName
@@ -43,40 +49,37 @@ export function formatText(result: LintResult, serverName?: string): string {
     const symbol = SYMBOLS[issue.severity];
     const ruleTag = `${DIM}[${issue.rule}]${RESET}`;
     lines.push(`  ${color}${symbol}${RESET}  ${issue.message}  ${ruleTag}`);
+
+    if (options.fixSuggestions && issue.fix) {
+      lines.push(`         ${DIM}\u2192 ${issue.fix}${RESET}`);
+    }
   }
 
   // Pass summaries — rules that found no issues
   const rulesWithIssues = new Set(result.issues.map((i) => i.rule));
-  const passedChecks: string[] = [];
+  const passedCount = allRules.filter((r) => !rulesWithIssues.has(r.id)).length;
 
-  if (!rulesWithIssues.has('desc-exists')) {
-    passedChecks.push(`${toolCount}/${toolCount} tools have descriptions`);
-  }
-  if (!rulesWithIssues.has('name-convention')) {
-    passedChecks.push('naming is consistent');
-  }
-  if (!rulesWithIssues.has('name-unique')) {
-    passedChecks.push('no duplicate tool names');
-  }
-
-  if (passedChecks.length > 0) {
-    for (const check of passedChecks) {
-      lines.push(`  ${GREEN}\u2713 pass${RESET}   ${check}`);
-    }
+  if (sorted.length === 0) {
+    lines.push(`  ${GREEN}\u2713 All ${allRules.length} rules passed${RESET}`);
   }
 
   lines.push('');
 
-  // Summary line
+  // Summary line: ✓ 12 rules passed | ⚠ 3 warnings | ✗ 2 errors
   const parts: string[] = [];
-  if (errors.length > 0) parts.push(`${errors.length} error${errors.length !== 1 ? 's' : ''}`);
-  if (warns.length > 0) parts.push(`${warns.length} warning${warns.length !== 1 ? 's' : ''}`);
-  if (infos.length > 0) parts.push(`${infos.length} info`);
-  if (parts.length > 0) {
-    lines.push(`  ${parts.join(' \u00B7 ')}`);
-  } else {
-    lines.push(`  ${GREEN}No issues found${RESET}`);
+  if (passedCount > 0) {
+    parts.push(`${GREEN}\u2713 ${passedCount} rules passed${RESET}`);
   }
+  if (warns.length > 0) {
+    parts.push(`${YELLOW}\u26A0 ${warns.length} warning${warns.length !== 1 ? 's' : ''}${RESET}`);
+  }
+  if (errors.length > 0) {
+    parts.push(`${RED}\u2717 ${errors.length} error${errors.length !== 1 ? 's' : ''}${RESET}`);
+  }
+  if (infos.length > 0) {
+    parts.push(`${DIM}\u2139 ${infos.length} info${RESET}`);
+  }
+  lines.push(`  ${parts.join(' | ')}`);
 
   lines.push('');
   lines.push(`  ${BOLD}Lint Score: ${result.score}/100${RESET}`);
