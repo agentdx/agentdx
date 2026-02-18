@@ -62,6 +62,19 @@ const NAME_VERBS = new Set([
   'subscribe', 'monitor', 'track', 'log', 'sync', 'refresh', 'reset',
   'load', 'save', 'store', 'submit', 'cancel', 'approve', 'reject',
   'move', 'copy', 'rename', 'test', 'analyze', 'inspect', 'query',
+  // Browser / UI / IO actions
+  'edit', 'browse', 'view', 'drop', 'pick', 'choose', 'swap',
+  'navigate', 'capture', 'perform', 'hover', 'select', 'resize',
+  'take', 'press', 'type', 'fill', 'wait', 'reload', 'evaluate',
+  'toggle', 'trigger', 'simulate', 'echo', 'drag', 'click', 'scroll',
+  'focus', 'clear', 'attach', 'detach', 'emit', 'listen', 'watch',
+  'poll', 'ping', 'render', 'format', 'sort', 'filter', 'merge',
+  'split', 'encode', 'decode', 'encrypt', 'decrypt', 'compress',
+  'count', 'measure', 'compare', 'notify', 'alert', 'warn',
+  'accept', 'deny', 'grant', 'revoke', 'assign', 'release',
+  'lock', 'unlock', 'publish', 'index', 'scan', 'crawl',
+  'schedule', 'pause', 'resume', 'archive', 'restore', 'backup',
+  'register', 'unregister', 'snapshot',
 ]);
 
 function getTokens(name: string): string[] {
@@ -82,8 +95,9 @@ export const nameVerbNoun: LintRule = {
     for (const tool of tools) {
       const tokens = getTokens(tool.name);
       if (tokens.length < 2) continue;
-      const firstToken = tokens[0]!;
-      if (!NAME_VERBS.has(firstToken)) {
+      // Check if any token is a verb — allows prefix_verb patterns (e.g. browser_click)
+      const hasVerb = tokens.some((t) => NAME_VERBS.has(t));
+      if (!hasVerb) {
         issues.push({
           rule: this.id,
           severity: this.severity,

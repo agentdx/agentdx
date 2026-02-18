@@ -1,0 +1,231 @@
+{
+  "server": "@modelcontextprotocol/server-filesystem",
+  "score": 85,
+  "toolCount": 14,
+  "issues": [
+    {
+      "rule": "desc-max-length",
+      "severity": "warn",
+      "message": "read_multiple_files: description is 324 chars — consider shortening",
+      "tool": "read_multiple_files"
+    },
+    {
+      "rule": "desc-max-length",
+      "severity": "warn",
+      "message": "write_file: description is 233 chars — consider shortening",
+      "tool": "write_file"
+    },
+    {
+      "rule": "desc-max-length",
+      "severity": "warn",
+      "message": "create_directory: description is 219 chars — consider shortening",
+      "tool": "create_directory"
+    },
+    {
+      "rule": "desc-max-length",
+      "severity": "warn",
+      "message": "list_directory: description is 201 chars — consider shortening",
+      "tool": "list_directory"
+    },
+    {
+      "rule": "desc-max-length",
+      "severity": "warn",
+      "message": "directory_tree: description is 258 chars — consider shortening",
+      "tool": "directory_tree"
+    },
+    {
+      "rule": "desc-max-length",
+      "severity": "warn",
+      "message": "move_file: description is 263 chars — consider shortening",
+      "tool": "move_file"
+    },
+    {
+      "rule": "desc-max-length",
+      "severity": "warn",
+      "message": "search_files: description is 263 chars — consider shortening",
+      "tool": "search_files"
+    },
+    {
+      "rule": "desc-action-verb",
+      "severity": "warn",
+      "message": "edit_file: description should start with a verb (e.g. \"Retrieves…\", \"Creates…\")",
+      "tool": "edit_file"
+    },
+    {
+      "rule": "desc-action-verb",
+      "severity": "warn",
+      "message": "search_files: description should start with a verb (e.g. \"Retrieves…\", \"Creates…\")",
+      "tool": "search_files"
+    },
+    {
+      "rule": "desc-clarity",
+      "severity": "info",
+      "message": "read_file: vague term \"Handles\" — be more specific about what this tool does",
+      "tool": "read_file"
+    },
+    {
+      "rule": "description-includes-usage-guidance",
+      "severity": "info",
+      "message": "read_file: description lacks usage guidance — explain when to use this tool",
+      "tool": "read_file",
+      "fix": "Add context like \"Use this to...\" or \"Call when...\" to help the LLM choose the right tool",
+      "docs": "https://arxiv.org/abs/2602.14878"
+    },
+    {
+      "rule": "description-includes-usage-guidance",
+      "severity": "info",
+      "message": "read_text_file: description lacks usage guidance — explain when to use this tool",
+      "tool": "read_text_file",
+      "fix": "Add context like \"Use this to...\" or \"Call when...\" to help the LLM choose the right tool",
+      "docs": "https://arxiv.org/abs/2602.14878"
+    },
+    {
+      "rule": "description-includes-usage-guidance",
+      "severity": "info",
+      "message": "read_media_file: description lacks usage guidance — explain when to use this tool",
+      "tool": "read_media_file",
+      "fix": "Add context like \"Use this to...\" or \"Call when...\" to help the LLM choose the right tool",
+      "docs": "https://arxiv.org/abs/2602.14878"
+    },
+    {
+      "rule": "description-includes-usage-guidance",
+      "severity": "info",
+      "message": "write_file: description lacks usage guidance — explain when to use this tool",
+      "tool": "write_file",
+      "fix": "Add context like \"Use this to...\" or \"Call when...\" to help the LLM choose the right tool",
+      "docs": "https://arxiv.org/abs/2602.14878"
+    },
+    {
+      "rule": "description-includes-usage-guidance",
+      "severity": "info",
+      "message": "edit_file: description lacks usage guidance — explain when to use this tool",
+      "tool": "edit_file",
+      "fix": "Add context like \"Use this to...\" or \"Call when...\" to help the LLM choose the right tool",
+      "docs": "https://arxiv.org/abs/2602.14878"
+    },
+    {
+      "rule": "description-includes-usage-guidance",
+      "severity": "info",
+      "message": "create_directory: description lacks usage guidance — explain when to use this tool",
+      "tool": "create_directory",
+      "fix": "Add context like \"Use this to...\" or \"Call when...\" to help the LLM choose the right tool",
+      "docs": "https://arxiv.org/abs/2602.14878"
+    },
+    {
+      "rule": "description-includes-usage-guidance",
+      "severity": "info",
+      "message": "list_directory: description lacks usage guidance — explain when to use this tool",
+      "tool": "list_directory",
+      "fix": "Add context like \"Use this to...\" or \"Call when...\" to help the LLM choose the right tool",
+      "docs": "https://arxiv.org/abs/2602.14878"
+    },
+    {
+      "rule": "description-includes-usage-guidance",
+      "severity": "info",
+      "message": "list_directory_with_sizes: description lacks usage guidance — explain when to use this tool",
+      "tool": "list_directory_with_sizes",
+      "fix": "Add context like \"Use this to...\" or \"Call when...\" to help the LLM choose the right tool",
+      "docs": "https://arxiv.org/abs/2602.14878"
+    },
+    {
+      "rule": "description-includes-usage-guidance",
+      "severity": "info",
+      "message": "directory_tree: description lacks usage guidance — explain when to use this tool",
+      "tool": "directory_tree",
+      "fix": "Add context like \"Use this to...\" or \"Call when...\" to help the LLM choose the right tool",
+      "docs": "https://arxiv.org/abs/2602.14878"
+    },
+    {
+      "rule": "description-includes-usage-guidance",
+      "severity": "info",
+      "message": "move_file: description lacks usage guidance — explain when to use this tool",
+      "tool": "move_file",
+      "fix": "Add context like \"Use this to...\" or \"Call when...\" to help the LLM choose the right tool",
+      "docs": "https://arxiv.org/abs/2602.14878"
+    },
+    {
+      "rule": "description-includes-usage-guidance",
+      "severity": "info",
+      "message": "search_files: description lacks usage guidance — explain when to use this tool",
+      "tool": "search_files",
+      "fix": "Add context like \"Use this to...\" or \"Call when...\" to help the LLM choose the right tool",
+      "docs": "https://arxiv.org/abs/2602.14878"
+    },
+    {
+      "rule": "description-includes-usage-guidance",
+      "severity": "info",
+      "message": "get_file_info: description lacks usage guidance — explain when to use this tool",
+      "tool": "get_file_info",
+      "fix": "Add context like \"Use this to...\" or \"Call when...\" to help the LLM choose the right tool",
+      "docs": "https://arxiv.org/abs/2602.14878"
+    },
+    {
+      "rule": "description-states-limitations",
+      "severity": "info",
+      "message": "list_allowed_directories: description doesn't mention any constraints or limitations",
+      "tool": "list_allowed_directories",
+      "fix": "Document limits like max results, rate limits, required permissions, or data restrictions",
+      "docs": "https://arxiv.org/abs/2602.14878"
+    },
+    {
+      "rule": "description-has-examples",
+      "severity": "info",
+      "message": "edit_file: complex tool (3 params) lacks examples in description",
+      "tool": "edit_file",
+      "fix": "Add example inputs like 'e.g. {\"query\": \"weather in NYC\"}' to help the LLM understand usage",
+      "docs": "https://arxiv.org/abs/2602.14878"
+    },
+    {
+      "rule": "description-has-examples",
+      "severity": "info",
+      "message": "search_files: complex tool (3 params) lacks examples in description",
+      "tool": "search_files",
+      "fix": "Add example inputs like 'e.g. {\"query\": \"weather in NYC\"}' to help the LLM understand usage",
+      "docs": "https://arxiv.org/abs/2602.14878"
+    },
+    {
+      "rule": "schema-enum-bool",
+      "severity": "info",
+      "message": "edit_file: \"dryRun\" is boolean — consider an enum for clarity (e.g. \"mode\": \"summary\" | \"full\")",
+      "tool": "edit_file",
+      "param": "dryRun"
+    },
+    {
+      "rule": "schema-defaults",
+      "severity": "info",
+      "message": "search_files: optional parameter \"excludePatterns\" has no default value",
+      "tool": "search_files",
+      "param": "excludePatterns"
+    },
+    {
+      "rule": "param-default-documented",
+      "severity": "info",
+      "message": "edit_file: parameter \"dryRun\" has default false but description doesn't mention it",
+      "tool": "edit_file",
+      "param": "dryRun",
+      "fix": "Add \"Defaults to false\" to the parameter description",
+      "docs": "https://spec.modelcontextprotocol.io/specification/2025-03-26/server/tools/"
+    },
+    {
+      "rule": "name-verb-noun",
+      "severity": "info",
+      "message": "directory_tree: consider verb_noun naming (e.g. \"get_directory_tree\")",
+      "tool": "directory_tree"
+    },
+    {
+      "rule": "name-prefix",
+      "severity": "info",
+      "message": "Tools sharing \"file\" could use consistent prefix grouping: read_file, read_text_file, read_media_file, write_file, edit_file, move_file"
+    },
+    {
+      "rule": "name-prefix",
+      "severity": "info",
+      "message": "Tools sharing \"files\" could use consistent prefix grouping: read_multiple_files, search_files"
+    },
+    {
+      "rule": "name-prefix",
+      "severity": "info",
+      "message": "Tools sharing \"directory\" could use consistent prefix grouping: create_directory, list_directory"
+    }
+  ]
+}

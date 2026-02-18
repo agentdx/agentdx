@@ -1,0 +1,480 @@
+{
+  "server": "@playwright/mcp",
+  "score": 80,
+  "toolCount": 19,
+  "issues": [
+    {
+      "rule": "desc-min-length",
+      "severity": "warn",
+      "message": "browser_navigate: description is 17 chars — too vague",
+      "tool": "browser_navigate"
+    },
+    {
+      "rule": "desc-min-length",
+      "severity": "warn",
+      "message": "browser_close: description is 14 chars — too vague",
+      "tool": "browser_close"
+    },
+    {
+      "rule": "desc-action-verb",
+      "severity": "warn",
+      "message": "browser_navigate_back: description should start with a verb (e.g. \"Retrieves…\", \"Creates…\")",
+      "tool": "browser_navigate_back"
+    },
+    {
+      "rule": "desc-action-verb",
+      "severity": "warn",
+      "message": "browser_navigate_forward: description should start with a verb (e.g. \"Retrieves…\", \"Creates…\")",
+      "tool": "browser_navigate_forward"
+    },
+    {
+      "rule": "desc-clarity",
+      "severity": "info",
+      "message": "browser_click: vague term \"Perform\" — be more specific about what this tool does",
+      "tool": "browser_click"
+    },
+    {
+      "rule": "desc-clarity",
+      "severity": "info",
+      "message": "browser_drag: vague term \"Perform\" — be more specific about what this tool does",
+      "tool": "browser_drag"
+    },
+    {
+      "rule": "desc-clarity",
+      "severity": "info",
+      "message": "browser_take_screenshot: vague term \"perform\" — be more specific about what this tool does",
+      "tool": "browser_take_screenshot"
+    },
+    {
+      "rule": "description-states-purpose",
+      "severity": "warn",
+      "message": "browser_navigate_back: description doesn't clearly state what the tool does",
+      "tool": "browser_navigate_back",
+      "fix": "Rewrite to clearly state the action: \"Retrieves...\", \"Creates...\", \"Searches...\"",
+      "docs": "https://arxiv.org/abs/2602.14878"
+    },
+    {
+      "rule": "description-states-purpose",
+      "severity": "warn",
+      "message": "browser_navigate_forward: description doesn't clearly state what the tool does",
+      "tool": "browser_navigate_forward",
+      "fix": "Rewrite to clearly state the action: \"Retrieves...\", \"Creates...\", \"Searches...\"",
+      "docs": "https://arxiv.org/abs/2602.14878"
+    },
+    {
+      "rule": "description-includes-usage-guidance",
+      "severity": "info",
+      "message": "browser_navigate_back: description lacks usage guidance — explain when to use this tool",
+      "tool": "browser_navigate_back",
+      "fix": "Add context like \"Use this to...\" or \"Call when...\" to help the LLM choose the right tool",
+      "docs": "https://arxiv.org/abs/2602.14878"
+    },
+    {
+      "rule": "description-includes-usage-guidance",
+      "severity": "info",
+      "message": "browser_navigate_forward: description lacks usage guidance — explain when to use this tool",
+      "tool": "browser_navigate_forward",
+      "fix": "Add context like \"Use this to...\" or \"Call when...\" to help the LLM choose the right tool",
+      "docs": "https://arxiv.org/abs/2602.14878"
+    },
+    {
+      "rule": "description-includes-usage-guidance",
+      "severity": "info",
+      "message": "browser_snapshot: description lacks usage guidance — explain when to use this tool",
+      "tool": "browser_snapshot",
+      "fix": "Add context like \"Use this to...\" or \"Call when...\" to help the LLM choose the right tool",
+      "docs": "https://arxiv.org/abs/2602.14878"
+    },
+    {
+      "rule": "description-includes-usage-guidance",
+      "severity": "info",
+      "message": "browser_drag: description lacks usage guidance — explain when to use this tool",
+      "tool": "browser_drag",
+      "fix": "Add context like \"Use this to...\" or \"Call when...\" to help the LLM choose the right tool",
+      "docs": "https://arxiv.org/abs/2602.14878"
+    },
+    {
+      "rule": "description-includes-usage-guidance",
+      "severity": "info",
+      "message": "browser_select_option: description lacks usage guidance — explain when to use this tool",
+      "tool": "browser_select_option",
+      "fix": "Add context like \"Use this to...\" or \"Call when...\" to help the LLM choose the right tool",
+      "docs": "https://arxiv.org/abs/2602.14878"
+    },
+    {
+      "rule": "description-includes-usage-guidance",
+      "severity": "info",
+      "message": "browser_take_screenshot: description lacks usage guidance — explain when to use this tool",
+      "tool": "browser_take_screenshot",
+      "fix": "Add context like \"Use this to...\" or \"Call when...\" to help the LLM choose the right tool",
+      "docs": "https://arxiv.org/abs/2602.14878"
+    },
+    {
+      "rule": "description-includes-usage-guidance",
+      "severity": "info",
+      "message": "browser_type: description lacks usage guidance — explain when to use this tool",
+      "tool": "browser_type",
+      "fix": "Add context like \"Use this to...\" or \"Call when...\" to help the LLM choose the right tool",
+      "docs": "https://arxiv.org/abs/2602.14878"
+    },
+    {
+      "rule": "description-includes-usage-guidance",
+      "severity": "info",
+      "message": "browser_tabs: description lacks usage guidance — explain when to use this tool",
+      "tool": "browser_tabs",
+      "fix": "Add context like \"Use this to...\" or \"Call when...\" to help the LLM choose the right tool",
+      "docs": "https://arxiv.org/abs/2602.14878"
+    },
+    {
+      "rule": "description-includes-usage-guidance",
+      "severity": "info",
+      "message": "browser_evaluate: description lacks usage guidance — explain when to use this tool",
+      "tool": "browser_evaluate",
+      "fix": "Add context like \"Use this to...\" or \"Call when...\" to help the LLM choose the right tool",
+      "docs": "https://arxiv.org/abs/2602.14878"
+    },
+    {
+      "rule": "description-includes-usage-guidance",
+      "severity": "info",
+      "message": "browser_wait_for: description lacks usage guidance — explain when to use this tool",
+      "tool": "browser_wait_for",
+      "fix": "Add context like \"Use this to...\" or \"Call when...\" to help the LLM choose the right tool",
+      "docs": "https://arxiv.org/abs/2602.14878"
+    },
+    {
+      "rule": "description-states-limitations",
+      "severity": "info",
+      "message": "browser_navigate_back: description doesn't mention any constraints or limitations",
+      "tool": "browser_navigate_back",
+      "fix": "Document limits like max results, rate limits, required permissions, or data restrictions",
+      "docs": "https://arxiv.org/abs/2602.14878"
+    },
+    {
+      "rule": "description-states-limitations",
+      "severity": "info",
+      "message": "browser_navigate_forward: description doesn't mention any constraints or limitations",
+      "tool": "browser_navigate_forward",
+      "fix": "Document limits like max results, rate limits, required permissions, or data restrictions",
+      "docs": "https://arxiv.org/abs/2602.14878"
+    },
+    {
+      "rule": "description-states-limitations",
+      "severity": "info",
+      "message": "browser_snapshot: description doesn't mention any constraints or limitations",
+      "tool": "browser_snapshot",
+      "fix": "Document limits like max results, rate limits, required permissions, or data restrictions",
+      "docs": "https://arxiv.org/abs/2602.14878"
+    },
+    {
+      "rule": "description-states-limitations",
+      "severity": "info",
+      "message": "browser_drag: description doesn't mention any constraints or limitations",
+      "tool": "browser_drag",
+      "fix": "Document limits like max results, rate limits, required permissions, or data restrictions",
+      "docs": "https://arxiv.org/abs/2602.14878"
+    },
+    {
+      "rule": "description-states-limitations",
+      "severity": "info",
+      "message": "browser_tabs: description doesn't mention any constraints or limitations",
+      "tool": "browser_tabs",
+      "fix": "Document limits like max results, rate limits, required permissions, or data restrictions",
+      "docs": "https://arxiv.org/abs/2602.14878"
+    },
+    {
+      "rule": "description-states-limitations",
+      "severity": "info",
+      "message": "browser_evaluate: description doesn't mention any constraints or limitations",
+      "tool": "browser_evaluate",
+      "fix": "Document limits like max results, rate limits, required permissions, or data restrictions",
+      "docs": "https://arxiv.org/abs/2602.14878"
+    },
+    {
+      "rule": "description-states-limitations",
+      "severity": "info",
+      "message": "browser_wait_for: description doesn't mention any constraints or limitations",
+      "tool": "browser_wait_for",
+      "fix": "Document limits like max results, rate limits, required permissions, or data restrictions",
+      "docs": "https://arxiv.org/abs/2602.14878"
+    },
+    {
+      "rule": "description-has-examples",
+      "severity": "info",
+      "message": "browser_click: complex tool (5 params) lacks examples in description",
+      "tool": "browser_click",
+      "fix": "Add example inputs like 'e.g. {\"query\": \"weather in NYC\"}' to help the LLM understand usage",
+      "docs": "https://arxiv.org/abs/2602.14878"
+    },
+    {
+      "rule": "description-has-examples",
+      "severity": "info",
+      "message": "browser_drag: complex tool (4 params) lacks examples in description",
+      "tool": "browser_drag",
+      "fix": "Add example inputs like 'e.g. {\"query\": \"weather in NYC\"}' to help the LLM understand usage",
+      "docs": "https://arxiv.org/abs/2602.14878"
+    },
+    {
+      "rule": "description-has-examples",
+      "severity": "info",
+      "message": "browser_select_option: complex tool (3 params) lacks examples in description",
+      "tool": "browser_select_option",
+      "fix": "Add example inputs like 'e.g. {\"query\": \"weather in NYC\"}' to help the LLM understand usage",
+      "docs": "https://arxiv.org/abs/2602.14878"
+    },
+    {
+      "rule": "description-has-examples",
+      "severity": "info",
+      "message": "browser_take_screenshot: complex tool (5 params) lacks examples in description",
+      "tool": "browser_take_screenshot",
+      "fix": "Add example inputs like 'e.g. {\"query\": \"weather in NYC\"}' to help the LLM understand usage",
+      "docs": "https://arxiv.org/abs/2602.14878"
+    },
+    {
+      "rule": "description-has-examples",
+      "severity": "info",
+      "message": "browser_type: complex tool (5 params) lacks examples in description",
+      "tool": "browser_type",
+      "fix": "Add example inputs like 'e.g. {\"query\": \"weather in NYC\"}' to help the LLM understand usage",
+      "docs": "https://arxiv.org/abs/2602.14878"
+    },
+    {
+      "rule": "description-has-examples",
+      "severity": "info",
+      "message": "browser_evaluate: complex tool (3 params) lacks examples in description",
+      "tool": "browser_evaluate",
+      "fix": "Add example inputs like 'e.g. {\"query\": \"weather in NYC\"}' to help the LLM understand usage",
+      "docs": "https://arxiv.org/abs/2602.14878"
+    },
+    {
+      "rule": "description-has-examples",
+      "severity": "info",
+      "message": "browser_wait_for: complex tool (3 params) lacks examples in description",
+      "tool": "browser_wait_for",
+      "fix": "Add example inputs like 'e.g. {\"query\": \"weather in NYC\"}' to help the LLM understand usage",
+      "docs": "https://arxiv.org/abs/2602.14878"
+    },
+    {
+      "rule": "schema-required",
+      "severity": "warn",
+      "message": "browser_snapshot: has 1 parameter(s) but none marked as required",
+      "tool": "browser_snapshot"
+    },
+    {
+      "rule": "schema-required",
+      "severity": "warn",
+      "message": "browser_take_screenshot: has 5 parameter(s) but none marked as required",
+      "tool": "browser_take_screenshot"
+    },
+    {
+      "rule": "schema-required",
+      "severity": "warn",
+      "message": "browser_file_upload: has 1 parameter(s) but none marked as required",
+      "tool": "browser_file_upload"
+    },
+    {
+      "rule": "schema-required",
+      "severity": "warn",
+      "message": "browser_wait_for: has 3 parameter(s) but none marked as required",
+      "tool": "browser_wait_for"
+    },
+    {
+      "rule": "schema-enum-bool",
+      "severity": "info",
+      "message": "browser_click: \"doubleClick\" is boolean — consider an enum for clarity (e.g. \"mode\": \"summary\" | \"full\")",
+      "tool": "browser_click",
+      "param": "doubleClick"
+    },
+    {
+      "rule": "schema-enum-bool",
+      "severity": "info",
+      "message": "browser_take_screenshot: \"fullPage\" is boolean — consider an enum for clarity (e.g. \"mode\": \"summary\" | \"full\")",
+      "tool": "browser_take_screenshot",
+      "param": "fullPage"
+    },
+    {
+      "rule": "schema-enum-bool",
+      "severity": "info",
+      "message": "browser_type: \"submit\" is boolean — consider an enum for clarity (e.g. \"mode\": \"summary\" | \"full\")",
+      "tool": "browser_type",
+      "param": "submit"
+    },
+    {
+      "rule": "schema-enum-bool",
+      "severity": "info",
+      "message": "browser_type: \"slowly\" is boolean — consider an enum for clarity (e.g. \"mode\": \"summary\" | \"full\")",
+      "tool": "browser_type",
+      "param": "slowly"
+    },
+    {
+      "rule": "schema-defaults",
+      "severity": "info",
+      "message": "browser_snapshot: optional parameter \"filename\" has no default value",
+      "tool": "browser_snapshot",
+      "param": "filename"
+    },
+    {
+      "rule": "schema-defaults",
+      "severity": "info",
+      "message": "browser_click: optional parameter \"element\" has no default value",
+      "tool": "browser_click",
+      "param": "element"
+    },
+    {
+      "rule": "schema-defaults",
+      "severity": "info",
+      "message": "browser_click: optional parameter \"doubleClick\" has no default value",
+      "tool": "browser_click",
+      "param": "doubleClick"
+    },
+    {
+      "rule": "schema-defaults",
+      "severity": "info",
+      "message": "browser_click: optional parameter \"button\" has no default value",
+      "tool": "browser_click",
+      "param": "button"
+    },
+    {
+      "rule": "schema-defaults",
+      "severity": "info",
+      "message": "browser_click: optional parameter \"modifiers\" has no default value",
+      "tool": "browser_click",
+      "param": "modifiers"
+    },
+    {
+      "rule": "schema-defaults",
+      "severity": "info",
+      "message": "browser_hover: optional parameter \"element\" has no default value",
+      "tool": "browser_hover",
+      "param": "element"
+    },
+    {
+      "rule": "schema-defaults",
+      "severity": "info",
+      "message": "browser_select_option: optional parameter \"element\" has no default value",
+      "tool": "browser_select_option",
+      "param": "element"
+    },
+    {
+      "rule": "schema-defaults",
+      "severity": "info",
+      "message": "browser_take_screenshot: optional parameter \"filename\" has no default value",
+      "tool": "browser_take_screenshot",
+      "param": "filename"
+    },
+    {
+      "rule": "schema-defaults",
+      "severity": "info",
+      "message": "browser_take_screenshot: optional parameter \"element\" has no default value",
+      "tool": "browser_take_screenshot",
+      "param": "element"
+    },
+    {
+      "rule": "schema-defaults",
+      "severity": "info",
+      "message": "browser_take_screenshot: optional parameter \"ref\" has no default value",
+      "tool": "browser_take_screenshot",
+      "param": "ref"
+    },
+    {
+      "rule": "schema-defaults",
+      "severity": "info",
+      "message": "browser_take_screenshot: optional parameter \"fullPage\" has no default value",
+      "tool": "browser_take_screenshot",
+      "param": "fullPage"
+    },
+    {
+      "rule": "schema-defaults",
+      "severity": "info",
+      "message": "browser_type: optional parameter \"element\" has no default value",
+      "tool": "browser_type",
+      "param": "element"
+    },
+    {
+      "rule": "schema-defaults",
+      "severity": "info",
+      "message": "browser_type: optional parameter \"submit\" has no default value",
+      "tool": "browser_type",
+      "param": "submit"
+    },
+    {
+      "rule": "schema-defaults",
+      "severity": "info",
+      "message": "browser_type: optional parameter \"slowly\" has no default value",
+      "tool": "browser_type",
+      "param": "slowly"
+    },
+    {
+      "rule": "schema-defaults",
+      "severity": "info",
+      "message": "browser_tabs: optional parameter \"index\" has no default value",
+      "tool": "browser_tabs",
+      "param": "index"
+    },
+    {
+      "rule": "schema-defaults",
+      "severity": "info",
+      "message": "browser_evaluate: optional parameter \"element\" has no default value",
+      "tool": "browser_evaluate",
+      "param": "element"
+    },
+    {
+      "rule": "schema-defaults",
+      "severity": "info",
+      "message": "browser_evaluate: optional parameter \"ref\" has no default value",
+      "tool": "browser_evaluate",
+      "param": "ref"
+    },
+    {
+      "rule": "schema-defaults",
+      "severity": "info",
+      "message": "browser_file_upload: optional parameter \"paths\" has no default value",
+      "tool": "browser_file_upload",
+      "param": "paths"
+    },
+    {
+      "rule": "schema-defaults",
+      "severity": "info",
+      "message": "browser_wait_for: optional parameter \"time\" has no default value",
+      "tool": "browser_wait_for",
+      "param": "time"
+    },
+    {
+      "rule": "schema-defaults",
+      "severity": "info",
+      "message": "browser_wait_for: optional parameter \"text\" has no default value",
+      "tool": "browser_wait_for",
+      "param": "text"
+    },
+    {
+      "rule": "schema-defaults",
+      "severity": "info",
+      "message": "browser_wait_for: optional parameter \"textGone\" has no default value",
+      "tool": "browser_wait_for",
+      "param": "textGone"
+    },
+    {
+      "rule": "param-enum-documented",
+      "severity": "warn",
+      "message": "browser_click: parameter \"button\" has enum values [left, right, middle] but doesn't document what they mean",
+      "tool": "browser_click",
+      "param": "button",
+      "fix": "Add descriptions for each enum value in the parameter description, e.g. '\"celsius\" = metric, \"fahrenheit\" = imperial'",
+      "docs": "https://spec.modelcontextprotocol.io/specification/2025-03-26/server/tools/"
+    },
+    {
+      "rule": "param-enum-documented",
+      "severity": "warn",
+      "message": "browser_tabs: parameter \"action\" has enum values [list, new, close, select] but doesn't document what they mean",
+      "tool": "browser_tabs",
+      "param": "action",
+      "fix": "Add descriptions for each enum value in the parameter description, e.g. '\"celsius\" = metric, \"fahrenheit\" = imperial'",
+      "docs": "https://spec.modelcontextprotocol.io/specification/2025-03-26/server/tools/"
+    },
+    {
+      "rule": "name-verb-noun",
+      "severity": "info",
+      "message": "browser_tabs: consider verb_noun naming (e.g. \"get_browser_tabs\")",
+      "tool": "browser_tabs"
+    }
+  ]
+}

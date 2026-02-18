@@ -1,9 +1,12 @@
 import { describe, it, expect } from 'vitest';
 import { calculateLintScore } from '../../src/lint/score.js';
+import { allRules } from '../../src/lint/rules/index.js';
 import type { LintIssue } from '../../src/core/types.js';
 
-function issue(severity: 'error' | 'warn' | 'info'): LintIssue {
-  return { rule: 'test', severity, message: 'test' };
+const totalRules = allRules.length;
+
+function issue(severity: 'error' | 'warn' | 'info', rule = 'test-rule'): LintIssue {
+  return { rule, severity, message: 'test' };
 }
 
 describe('calculateLintScore', () => {
@@ -11,25 +14,58 @@ describe('calculateLintScore', () => {
     expect(calculateLintScore([])).toBe(100);
   });
 
-  it('deducts 10 per error', () => {
-    expect(calculateLintScore([issue('error')])).toBe(90);
-    expect(calculateLintScore([issue('error'), issue('error')])).toBe(80);
+  it('scores based on rule pass rate with severity weighting', () => {
+    // 1 rule with error: deduction = 3 out of totalRules * 3
+    const score = calculateLintScore([issue('error', 'rule-a')]);
+    const expected = Math.round(100 * (1 - 3 / (totalRules * 3)));
+    expect(score).toBe(expected);
   });
 
-  it('deducts 3 per warning', () => {
-    expect(calculateLintScore([issue('warn')])).toBe(97);
+  it('weighs warnings less than errors', () => {
+    const errorScore = calculateLintScore([issue('error', 'rule-a')]);
+    const warnScore = calculateLintScore([issue('warn', 'rule-a')]);
+    expect(warnScore).toBeGreaterThan(errorScore);
   });
 
-  it('deducts 1 per info', () => {
-    expect(calculateLintScore([issue('info')])).toBe(99);
+  it('weighs info less than warnings', () => {
+    const warnScore = calculateLintScore([issue('warn', 'rule-a')]);
+    const infoScore = calculateLintScore([issue('info', 'rule-a')]);
+    expect(infoScore).toBeGreaterThan(warnScore);
   });
 
-  it('combines deductions', () => {
-    expect(calculateLintScore([issue('error'), issue('warn'), issue('info')])).toBe(86);
+  it('deduplicates by rule — multiple issues from same rule count once', () => {
+    const singleIssue = calculateLintScore([issue('error', 'rule-a')]);
+    const multipleIssues = calculateLintScore([
+      issue('error', 'rule-a'),
+      issue('error', 'rule-a'),
+      issue('error', 'rule-a'),
+    ]);
+    expect(multipleIssues).toBe(singleIssue);
   });
 
-  it('clamps to 0', () => {
-    const manyErrors = Array.from({ length: 20 }, () => issue('error'));
-    expect(calculateLintScore(manyErrors)).toBe(0);
+  it('uses worst severity per rule', () => {
+    // If a rule has both warn and error, error wins
+    const mixedScore = calculateLintScore([
+      issue('warn', 'rule-a'),
+      issue('error', 'rule-a'),
+    ]);
+    const errorScore = calculateLintScore([issue('error', 'rule-a')]);
+    expect(mixedScore).toBe(errorScore);
+  });
+
+  it('clamps to 0 when all rules fail with errors', () => {
+    const allErrors = allRules.map((r) => issue('error', r.id));
+    expect(calculateLintScore(allErrors)).toBe(0);
+  });
+
+  it('combines multiple failing rules', () => {
+    const issues = [
+      issue('error', 'rule-a'),
+      issue('warn', 'rule-b'),
+      issue('info', 'rule-c'),
+    ];
+    // deduction = 3 + 2 + 1 = 6 out of totalRules * 3
+    const expected = Math.round(100 * (1 - 6 / (totalRules * 3)));
+    expect(calculateLintScore(issues)).toBe(expected);
   });
 });

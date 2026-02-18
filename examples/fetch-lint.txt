@@ -1,0 +1,22 @@
+
+  AgentDX Lint — @modelcontextprotocol/server-fetch (1 tool)
+
+  ⚠ warn   fetch: generic name causes collisions when multiple MCP servers are loaded  [name-not-ambiguous]
+         → Add a domain-specific prefix or noun: "fetch" → "weather_fetch" or "fetch_users"
+  ℹ info   fetch: description lacks usage guidance — explain when to use this tool  [description-includes-usage-guidance]
+         → Add context like "Use this to..." or "Call when..." to help the LLM choose the right tool
+  ℹ info   fetch: description doesn't mention any constraints or limitations  [description-states-limitations]
+         → Document limits like max results, rate limits, required permissions, or data restrictions
+  ℹ info   fetch: complex tool (4 params) lacks examples in description  [description-has-examples]
+         → Add example inputs like 'e.g. {"query": "weather in NYC"}' to help the LLM understand usage
+  ℹ info   fetch: "raw" is boolean — consider an enum for clarity (e.g. "mode": "summary" | "full")  [schema-enum-bool]
+  ℹ info   fetch: parameter "max_length" has default 5000 but description doesn't mention it  [param-default-documented]
+         → Add "Defaults to 5000" to the parameter description
+  ℹ info   fetch: parameter "start_index" has default 0 but description doesn't mention it  [param-default-documented]
+         → Add "Defaults to 0" to the parameter description
+  ℹ info   fetch: parameter "raw" has default false but description doesn't mention it  [param-default-documented]
+         → Add "Defaults to false" to the parameter description
+
+  ✓ 23 rules passed | ⚠ 1 warning | ℹ 7 info
+
+  Lint Score: 92/100

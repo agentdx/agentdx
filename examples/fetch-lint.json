@@ -1,0 +1,73 @@
+{
+  "server": "@modelcontextprotocol/server-fetch",
+  "score": 92,
+  "toolCount": 1,
+  "issues": [
+    {
+      "rule": "description-includes-usage-guidance",
+      "severity": "info",
+      "message": "fetch: description lacks usage guidance — explain when to use this tool",
+      "tool": "fetch",
+      "fix": "Add context like \"Use this to...\" or \"Call when...\" to help the LLM choose the right tool",
+      "docs": "https://arxiv.org/abs/2602.14878"
+    },
+    {
+      "rule": "description-states-limitations",
+      "severity": "info",
+      "message": "fetch: description doesn't mention any constraints or limitations",
+      "tool": "fetch",
+      "fix": "Document limits like max results, rate limits, required permissions, or data restrictions",
+      "docs": "https://arxiv.org/abs/2602.14878"
+    },
+    {
+      "rule": "description-has-examples",
+      "severity": "info",
+      "message": "fetch: complex tool (4 params) lacks examples in description",
+      "tool": "fetch",
+      "fix": "Add example inputs like 'e.g. {\"query\": \"weather in NYC\"}' to help the LLM understand usage",
+      "docs": "https://arxiv.org/abs/2602.14878"
+    },
+    {
+      "rule": "schema-enum-bool",
+      "severity": "info",
+      "message": "fetch: \"raw\" is boolean — consider an enum for clarity (e.g. \"mode\": \"summary\" | \"full\")",
+      "tool": "fetch",
+      "param": "raw"
+    },
+    {
+      "rule": "param-default-documented",
+      "severity": "info",
+      "message": "fetch: parameter \"max_length\" has default 5000 but description doesn't mention it",
+      "tool": "fetch",
+      "param": "max_length",
+      "fix": "Add \"Defaults to 5000\" to the parameter description",
+      "docs": "https://spec.modelcontextprotocol.io/specification/2025-03-26/server/tools/"
+    },
+    {
+      "rule": "param-default-documented",
+      "severity": "info",
+      "message": "fetch: parameter \"start_index\" has default 0 but description doesn't mention it",
+      "tool": "fetch",
+      "param": "start_index",
+      "fix": "Add \"Defaults to 0\" to the parameter description",
+      "docs": "https://spec.modelcontextprotocol.io/specification/2025-03-26/server/tools/"
+    },
+    {
+      "rule": "param-default-documented",
+      "severity": "info",
+      "message": "fetch: parameter \"raw\" has default false but description doesn't mention it",
+      "tool": "fetch",
+      "param": "raw",
+      "fix": "Add \"Defaults to false\" to the parameter description",
+      "docs": "https://spec.modelcontextprotocol.io/specification/2025-03-26/server/tools/"
+    },
+    {
+      "rule": "name-not-ambiguous",
+      "severity": "warn",
+      "message": "fetch: generic name causes collisions when multiple MCP servers are loaded",
+      "tool": "fetch",
+      "fix": "Add a domain-specific prefix or noun: \"fetch\" → \"weather_fetch\" or \"fetch_users\"",
+      "docs": "https://arxiv.org/abs/2602.14878"
+    }
+  ]
+}

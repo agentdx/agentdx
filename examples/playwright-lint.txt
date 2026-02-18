@@ -1,0 +1,100 @@
+
+  AgentDX Lint — @playwright/mcp (19 tools)
+
+  ⚠ warn   browser_navigate: description is 17 chars — too vague  [desc-min-length]
+  ⚠ warn   browser_close: description is 14 chars — too vague  [desc-min-length]
+  ⚠ warn   browser_navigate_back: description should start with a verb (e.g. "Retrieves…", "Creates…")  [desc-action-verb]
+  ⚠ warn   browser_navigate_forward: description should start with a verb (e.g. "Retrieves…", "Creates…")  [desc-action-verb]
+  ⚠ warn   browser_navigate_back: description doesn't clearly state what the tool does  [description-states-purpose]
+         → Rewrite to clearly state the action: "Retrieves...", "Creates...", "Searches..."
+  ⚠ warn   browser_navigate_forward: description doesn't clearly state what the tool does  [description-states-purpose]
+         → Rewrite to clearly state the action: "Retrieves...", "Creates...", "Searches..."
+  ⚠ warn   browser_snapshot: has 1 parameter(s) but none marked as required  [schema-required]
+  ⚠ warn   browser_take_screenshot: has 5 parameter(s) but none marked as required  [schema-required]
+  ⚠ warn   browser_file_upload: has 1 parameter(s) but none marked as required  [schema-required]
+  ⚠ warn   browser_wait_for: has 3 parameter(s) but none marked as required  [schema-required]
+  ⚠ warn   browser_click: parameter "button" has enum values [left, right, middle] but doesn't document what they mean  [param-enum-documented]
+         → Add descriptions for each enum value in the parameter description, e.g. '"celsius" = metric, "fahrenheit" = imperial'
+  ⚠ warn   browser_tabs: parameter "action" has enum values [list, new, close, select] but doesn't document what they mean  [param-enum-documented]
+         → Add descriptions for each enum value in the parameter description, e.g. '"celsius" = metric, "fahrenheit" = imperial'
+  ℹ info   browser_click: vague term "Perform" — be more specific about what this tool does  [desc-clarity]
+  ℹ info   browser_drag: vague term "Perform" — be more specific about what this tool does  [desc-clarity]
+  ℹ info   browser_take_screenshot: vague term "perform" — be more specific about what this tool does  [desc-clarity]
+  ℹ info   browser_navigate_back: description lacks usage guidance — explain when to use this tool  [description-includes-usage-guidance]
+         → Add context like "Use this to..." or "Call when..." to help the LLM choose the right tool
+  ℹ info   browser_navigate_forward: description lacks usage guidance — explain when to use this tool  [description-includes-usage-guidance]
+         → Add context like "Use this to..." or "Call when..." to help the LLM choose the right tool
+  ℹ info   browser_snapshot: description lacks usage guidance — explain when to use this tool  [description-includes-usage-guidance]
+         → Add context like "Use this to..." or "Call when..." to help the LLM choose the right tool
+  ℹ info   browser_drag: description lacks usage guidance — explain when to use this tool  [description-includes-usage-guidance]
+         → Add context like "Use this to..." or "Call when..." to help the LLM choose the right tool
+  ℹ info   browser_select_option: description lacks usage guidance — explain when to use this tool  [description-includes-usage-guidance]
+         → Add context like "Use this to..." or "Call when..." to help the LLM choose the right tool
+  ℹ info   browser_take_screenshot: description lacks usage guidance — explain when to use this tool  [description-includes-usage-guidance]
+         → Add context like "Use this to..." or "Call when..." to help the LLM choose the right tool
+  ℹ info   browser_type: description lacks usage guidance — explain when to use this tool  [description-includes-usage-guidance]
+         → Add context like "Use this to..." or "Call when..." to help the LLM choose the right tool
+  ℹ info   browser_tabs: description lacks usage guidance — explain when to use this tool  [description-includes-usage-guidance]
+         → Add context like "Use this to..." or "Call when..." to help the LLM choose the right tool
+  ℹ info   browser_evaluate: description lacks usage guidance — explain when to use this tool  [description-includes-usage-guidance]
+         → Add context like "Use this to..." or "Call when..." to help the LLM choose the right tool
+  ℹ info   browser_wait_for: description lacks usage guidance — explain when to use this tool  [description-includes-usage-guidance]
+         → Add context like "Use this to..." or "Call when..." to help the LLM choose the right tool
+  ℹ info   browser_navigate_back: description doesn't mention any constraints or limitations  [description-states-limitations]
+         → Document limits like max results, rate limits, required permissions, or data restrictions
+  ℹ info   browser_navigate_forward: description doesn't mention any constraints or limitations  [description-states-limitations]
+         → Document limits like max results, rate limits, required permissions, or data restrictions
+  ℹ info   browser_snapshot: description doesn't mention any constraints or limitations  [description-states-limitations]
+         → Document limits like max results, rate limits, required permissions, or data restrictions
+  ℹ info   browser_drag: description doesn't mention any constraints or limitations  [description-states-limitations]
+         → Document limits like max results, rate limits, required permissions, or data restrictions
+  ℹ info   browser_tabs: description doesn't mention any constraints or limitations  [description-states-limitations]
+         → Document limits like max results, rate limits, required permissions, or data restrictions
+  ℹ info   browser_evaluate: description doesn't mention any constraints or limitations  [description-states-limitations]
+         → Document limits like max results, rate limits, required permissions, or data restrictions
+  ℹ info   browser_wait_for: description doesn't mention any constraints or limitations  [description-states-limitations]
+         → Document limits like max results, rate limits, required permissions, or data restrictions
+  ℹ info   browser_click: complex tool (5 params) lacks examples in description  [description-has-examples]
+         → Add example inputs like 'e.g. {"query": "weather in NYC"}' to help the LLM understand usage
+  ℹ info   browser_drag: complex tool (4 params) lacks examples in description  [description-has-examples]
+         → Add example inputs like 'e.g. {"query": "weather in NYC"}' to help the LLM understand usage
+  ℹ info   browser_select_option: complex tool (3 params) lacks examples in description  [description-has-examples]
+         → Add example inputs like 'e.g. {"query": "weather in NYC"}' to help the LLM understand usage
+  ℹ info   browser_take_screenshot: complex tool (5 params) lacks examples in description  [description-has-examples]
+         → Add example inputs like 'e.g. {"query": "weather in NYC"}' to help the LLM understand usage
+  ℹ info   browser_type: complex tool (5 params) lacks examples in description  [description-has-examples]
+         → Add example inputs like 'e.g. {"query": "weather in NYC"}' to help the LLM understand usage
+  ℹ info   browser_evaluate: complex tool (3 params) lacks examples in description  [description-has-examples]
+         → Add example inputs like 'e.g. {"query": "weather in NYC"}' to help the LLM understand usage
+  ℹ info   browser_wait_for: complex tool (3 params) lacks examples in description  [description-has-examples]
+         → Add example inputs like 'e.g. {"query": "weather in NYC"}' to help the LLM understand usage
+  ℹ info   browser_click: "doubleClick" is boolean — consider an enum for clarity (e.g. "mode": "summary" | "full")  [schema-enum-bool]
+  ℹ info   browser_take_screenshot: "fullPage" is boolean — consider an enum for clarity (e.g. "mode": "summary" | "full")  [schema-enum-bool]
+  ℹ info   browser_type: "submit" is boolean — consider an enum for clarity (e.g. "mode": "summary" | "full")  [schema-enum-bool]
+  ℹ info   browser_type: "slowly" is boolean — consider an enum for clarity (e.g. "mode": "summary" | "full")  [schema-enum-bool]
+  ℹ info   browser_snapshot: optional parameter "filename" has no default value  [schema-defaults]
+  ℹ info   browser_click: optional parameter "element" has no default value  [schema-defaults]
+  ℹ info   browser_click: optional parameter "doubleClick" has no default value  [schema-defaults]
+  ℹ info   browser_click: optional parameter "button" has no default value  [schema-defaults]
+  ℹ info   browser_click: optional parameter "modifiers" has no default value  [schema-defaults]
+  ℹ info   browser_hover: optional parameter "element" has no default value  [schema-defaults]
+  ℹ info   browser_select_option: optional parameter "element" has no default value  [schema-defaults]
+  ℹ info   browser_take_screenshot: optional parameter "filename" has no default value  [schema-defaults]
+  ℹ info   browser_take_screenshot: optional parameter "element" has no default value  [schema-defaults]
+  ℹ info   browser_take_screenshot: optional parameter "ref" has no default value  [schema-defaults]
+  ℹ info   browser_take_screenshot: optional parameter "fullPage" has no default value  [schema-defaults]
+  ℹ info   browser_type: optional parameter "element" has no default value  [schema-defaults]
+  ℹ info   browser_type: optional parameter "submit" has no default value  [schema-defaults]
+  ℹ info   browser_type: optional parameter "slowly" has no default value  [schema-defaults]
+  ℹ info   browser_tabs: optional parameter "index" has no default value  [schema-defaults]
+  ℹ info   browser_evaluate: optional parameter "element" has no default value  [schema-defaults]
+  ℹ info   browser_evaluate: optional parameter "ref" has no default value  [schema-defaults]
+  ℹ info   browser_file_upload: optional parameter "paths" has no default value  [schema-defaults]
+  ℹ info   browser_wait_for: optional parameter "time" has no default value  [schema-defaults]
+  ℹ info   browser_wait_for: optional parameter "text" has no default value  [schema-defaults]
+  ℹ info   browser_wait_for: optional parameter "textGone" has no default value  [schema-defaults]
+  ℹ info   browser_tabs: consider verb_noun naming (e.g. "get_browser_tabs")  [name-verb-noun]
+
+  ✓ 17 rules passed | ⚠ 12 warnings | ℹ 53 info
+
+  Lint Score: 80/100

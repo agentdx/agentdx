@@ -1,0 +1,335 @@
+{
+  "server": "@modelcontextprotocol/server-everything",
+  "score": 82,
+  "toolCount": 18,
+  "issues": [
+    {
+      "rule": "desc-unique",
+      "severity": "warn",
+      "message": "trigger-elicitation-request: description too similar to trigger-elicitation-request-async — LLM won't know which to pick",
+      "tool": "trigger-elicitation-request",
+      "fix": "Differentiate the descriptions of \"trigger-elicitation-request\" and \"trigger-elicitation-request-async\" to clarify their distinct purposes",
+      "docs": "https://arxiv.org/abs/2602.14878"
+    },
+    {
+      "rule": "desc-unique",
+      "severity": "warn",
+      "message": "trigger-sampling-request: description too similar to trigger-sampling-request-async — LLM won't know which to pick",
+      "tool": "trigger-sampling-request",
+      "fix": "Differentiate the descriptions of \"trigger-sampling-request\" and \"trigger-sampling-request-async\" to clarify their distinct purposes",
+      "docs": "https://arxiv.org/abs/2602.14878"
+    },
+    {
+      "rule": "description-states-purpose",
+      "severity": "warn",
+      "message": "get-sum: description doesn't clearly state what the tool does",
+      "tool": "get-sum",
+      "fix": "Rewrite to clearly state the action: \"Retrieves...\", \"Creates...\", \"Searches...\"",
+      "docs": "https://arxiv.org/abs/2602.14878"
+    },
+    {
+      "rule": "description-includes-usage-guidance",
+      "severity": "info",
+      "message": "get-env: description lacks usage guidance — explain when to use this tool",
+      "tool": "get-env",
+      "fix": "Add context like \"Use this to...\" or \"Call when...\" to help the LLM choose the right tool",
+      "docs": "https://arxiv.org/abs/2602.14878"
+    },
+    {
+      "rule": "description-includes-usage-guidance",
+      "severity": "info",
+      "message": "get-resource-links: description lacks usage guidance — explain when to use this tool",
+      "tool": "get-resource-links",
+      "fix": "Add context like \"Use this to...\" or \"Call when...\" to help the LLM choose the right tool",
+      "docs": "https://arxiv.org/abs/2602.14878"
+    },
+    {
+      "rule": "description-includes-usage-guidance",
+      "severity": "info",
+      "message": "get-structured-content: description lacks usage guidance — explain when to use this tool",
+      "tool": "get-structured-content",
+      "fix": "Add context like \"Use this to...\" or \"Call when...\" to help the LLM choose the right tool",
+      "docs": "https://arxiv.org/abs/2602.14878"
+    },
+    {
+      "rule": "description-includes-usage-guidance",
+      "severity": "info",
+      "message": "get-roots-list: description lacks usage guidance — explain when to use this tool",
+      "tool": "get-roots-list",
+      "fix": "Add context like \"Use this to...\" or \"Call when...\" to help the LLM choose the right tool",
+      "docs": "https://arxiv.org/abs/2602.14878"
+    },
+    {
+      "rule": "description-includes-usage-guidance",
+      "severity": "info",
+      "message": "gzip-file-as-resource: description lacks usage guidance — explain when to use this tool",
+      "tool": "gzip-file-as-resource",
+      "fix": "Add context like \"Use this to...\" or \"Call when...\" to help the LLM choose the right tool",
+      "docs": "https://arxiv.org/abs/2602.14878"
+    },
+    {
+      "rule": "description-includes-usage-guidance",
+      "severity": "info",
+      "message": "toggle-simulated-logging: description lacks usage guidance — explain when to use this tool",
+      "tool": "toggle-simulated-logging",
+      "fix": "Add context like \"Use this to...\" or \"Call when...\" to help the LLM choose the right tool",
+      "docs": "https://arxiv.org/abs/2602.14878"
+    },
+    {
+      "rule": "description-includes-usage-guidance",
+      "severity": "info",
+      "message": "toggle-subscriber-updates: description lacks usage guidance — explain when to use this tool",
+      "tool": "toggle-subscriber-updates",
+      "fix": "Add context like \"Use this to...\" or \"Call when...\" to help the LLM choose the right tool",
+      "docs": "https://arxiv.org/abs/2602.14878"
+    },
+    {
+      "rule": "description-includes-usage-guidance",
+      "severity": "info",
+      "message": "trigger-elicitation-request: description lacks usage guidance — explain when to use this tool",
+      "tool": "trigger-elicitation-request",
+      "fix": "Add context like \"Use this to...\" or \"Call when...\" to help the LLM choose the right tool",
+      "docs": "https://arxiv.org/abs/2602.14878"
+    },
+    {
+      "rule": "description-includes-usage-guidance",
+      "severity": "info",
+      "message": "trigger-elicitation-request-async: description lacks usage guidance — explain when to use this tool",
+      "tool": "trigger-elicitation-request-async",
+      "fix": "Add context like \"Use this to...\" or \"Call when...\" to help the LLM choose the right tool",
+      "docs": "https://arxiv.org/abs/2602.14878"
+    },
+    {
+      "rule": "description-includes-usage-guidance",
+      "severity": "info",
+      "message": "trigger-sampling-request: description lacks usage guidance — explain when to use this tool",
+      "tool": "trigger-sampling-request",
+      "fix": "Add context like \"Use this to...\" or \"Call when...\" to help the LLM choose the right tool",
+      "docs": "https://arxiv.org/abs/2602.14878"
+    },
+    {
+      "rule": "description-includes-usage-guidance",
+      "severity": "info",
+      "message": "trigger-sampling-request-async: description lacks usage guidance — explain when to use this tool",
+      "tool": "trigger-sampling-request-async",
+      "fix": "Add context like \"Use this to...\" or \"Call when...\" to help the LLM choose the right tool",
+      "docs": "https://arxiv.org/abs/2602.14878"
+    },
+    {
+      "rule": "description-includes-usage-guidance",
+      "severity": "info",
+      "message": "trigger-long-running-operation: description lacks usage guidance — explain when to use this tool",
+      "tool": "trigger-long-running-operation",
+      "fix": "Add context like \"Use this to...\" or \"Call when...\" to help the LLM choose the right tool",
+      "docs": "https://arxiv.org/abs/2602.14878"
+    },
+    {
+      "rule": "description-includes-usage-guidance",
+      "severity": "info",
+      "message": "simulate-research-query: description lacks usage guidance — explain when to use this tool",
+      "tool": "simulate-research-query",
+      "fix": "Add context like \"Use this to...\" or \"Call when...\" to help the LLM choose the right tool",
+      "docs": "https://arxiv.org/abs/2602.14878"
+    },
+    {
+      "rule": "description-states-limitations",
+      "severity": "info",
+      "message": "get-env: description doesn't mention any constraints or limitations",
+      "tool": "get-env",
+      "fix": "Document limits like max results, rate limits, required permissions, or data restrictions",
+      "docs": "https://arxiv.org/abs/2602.14878"
+    },
+    {
+      "rule": "description-states-limitations",
+      "severity": "info",
+      "message": "get-structured-content: description doesn't mention any constraints or limitations",
+      "tool": "get-structured-content",
+      "fix": "Document limits like max results, rate limits, required permissions, or data restrictions",
+      "docs": "https://arxiv.org/abs/2602.14878"
+    },
+    {
+      "rule": "description-states-limitations",
+      "severity": "info",
+      "message": "get-roots-list: description doesn't mention any constraints or limitations",
+      "tool": "get-roots-list",
+      "fix": "Document limits like max results, rate limits, required permissions, or data restrictions",
+      "docs": "https://arxiv.org/abs/2602.14878"
+    },
+    {
+      "rule": "description-states-limitations",
+      "severity": "info",
+      "message": "gzip-file-as-resource: description doesn't mention any constraints or limitations",
+      "tool": "gzip-file-as-resource",
+      "fix": "Document limits like max results, rate limits, required permissions, or data restrictions",
+      "docs": "https://arxiv.org/abs/2602.14878"
+    },
+    {
+      "rule": "description-states-limitations",
+      "severity": "info",
+      "message": "toggle-subscriber-updates: description doesn't mention any constraints or limitations",
+      "tool": "toggle-subscriber-updates",
+      "fix": "Document limits like max results, rate limits, required permissions, or data restrictions",
+      "docs": "https://arxiv.org/abs/2602.14878"
+    },
+    {
+      "rule": "description-states-limitations",
+      "severity": "info",
+      "message": "trigger-elicitation-request: description doesn't mention any constraints or limitations",
+      "tool": "trigger-elicitation-request",
+      "fix": "Document limits like max results, rate limits, required permissions, or data restrictions",
+      "docs": "https://arxiv.org/abs/2602.14878"
+    },
+    {
+      "rule": "description-states-limitations",
+      "severity": "info",
+      "message": "trigger-elicitation-request-async: description doesn't mention any constraints or limitations",
+      "tool": "trigger-elicitation-request-async",
+      "fix": "Document limits like max results, rate limits, required permissions, or data restrictions",
+      "docs": "https://arxiv.org/abs/2602.14878"
+    },
+    {
+      "rule": "description-states-limitations",
+      "severity": "info",
+      "message": "trigger-sampling-request: description doesn't mention any constraints or limitations",
+      "tool": "trigger-sampling-request",
+      "fix": "Document limits like max results, rate limits, required permissions, or data restrictions",
+      "docs": "https://arxiv.org/abs/2602.14878"
+    },
+    {
+      "rule": "description-states-limitations",
+      "severity": "info",
+      "message": "trigger-sampling-request-async: description doesn't mention any constraints or limitations",
+      "tool": "trigger-sampling-request-async",
+      "fix": "Document limits like max results, rate limits, required permissions, or data restrictions",
+      "docs": "https://arxiv.org/abs/2602.14878"
+    },
+    {
+      "rule": "description-states-limitations",
+      "severity": "info",
+      "message": "trigger-long-running-operation: description doesn't mention any constraints or limitations",
+      "tool": "trigger-long-running-operation",
+      "fix": "Document limits like max results, rate limits, required permissions, or data restrictions",
+      "docs": "https://arxiv.org/abs/2602.14878"
+    },
+    {
+      "rule": "description-states-limitations",
+      "severity": "info",
+      "message": "simulate-research-query: description doesn't mention any constraints or limitations",
+      "tool": "simulate-research-query",
+      "fix": "Document limits like max results, rate limits, required permissions, or data restrictions",
+      "docs": "https://arxiv.org/abs/2602.14878"
+    },
+    {
+      "rule": "schema-param-desc",
+      "severity": "warn",
+      "message": "get-sum: parameter \"a\" has no description",
+      "tool": "get-sum",
+      "param": "a"
+    },
+    {
+      "rule": "schema-param-desc",
+      "severity": "warn",
+      "message": "get-sum: parameter \"b\" has no description",
+      "tool": "get-sum",
+      "param": "b"
+    },
+    {
+      "rule": "schema-param-desc",
+      "severity": "warn",
+      "message": "get-annotated-message: parameter \"includeMetadata\" has no description",
+      "tool": "get-annotated-message",
+      "param": "includeMetadata"
+    },
+    {
+      "rule": "schema-required",
+      "severity": "warn",
+      "message": "get-annotated-message: has 2 parameter(s) but none marked as required",
+      "tool": "get-annotated-message"
+    },
+    {
+      "rule": "schema-required",
+      "severity": "warn",
+      "message": "trigger-long-running-operation: has 2 parameter(s) but none marked as required",
+      "tool": "trigger-long-running-operation"
+    },
+    {
+      "rule": "schema-enum-bool",
+      "severity": "info",
+      "message": "get-annotated-message: \"includeMetadata\" is boolean — consider an enum for clarity (e.g. \"mode\": \"summary\" | \"full\")",
+      "tool": "get-annotated-message",
+      "param": "includeMetadata"
+    },
+    {
+      "rule": "schema-enum-bool",
+      "severity": "info",
+      "message": "toggle-simulated-logging: \"enabled\" is boolean — consider an enum for clarity (e.g. \"mode\": \"summary\" | \"full\")",
+      "tool": "toggle-simulated-logging",
+      "param": "enabled"
+    },
+    {
+      "rule": "schema-enum-bool",
+      "severity": "info",
+      "message": "toggle-subscriber-updates: \"enabled\" is boolean — consider an enum for clarity (e.g. \"mode\": \"summary\" | \"full\")",
+      "tool": "toggle-subscriber-updates",
+      "param": "enabled"
+    },
+    {
+      "rule": "schema-defaults",
+      "severity": "info",
+      "message": "get-annotated-message: optional parameter \"messageStyle\" has no default value",
+      "tool": "get-annotated-message",
+      "param": "messageStyle"
+    },
+    {
+      "rule": "param-enum-documented",
+      "severity": "warn",
+      "message": "get-annotated-message: parameter \"messageStyle\" has enum values [cheerful, professional, casual] but doesn't document what they mean",
+      "tool": "get-annotated-message",
+      "param": "messageStyle",
+      "fix": "Add descriptions for each enum value in the parameter description, e.g. '\"celsius\" = metric, \"fahrenheit\" = imperial'",
+      "docs": "https://spec.modelcontextprotocol.io/specification/2025-03-26/server/tools/"
+    },
+    {
+      "rule": "param-default-documented",
+      "severity": "info",
+      "message": "get-annotated-message: parameter \"includeMetadata\" has default true but description doesn't mention it",
+      "tool": "get-annotated-message",
+      "param": "includeMetadata",
+      "fix": "Add \"Defaults to true\" to the parameter description",
+      "docs": "https://spec.modelcontextprotocol.io/specification/2025-03-26/server/tools/"
+    },
+    {
+      "rule": "param-default-documented",
+      "severity": "info",
+      "message": "trigger-long-running-operation: parameter \"duration\" has default 10 but description doesn't mention it",
+      "tool": "trigger-long-running-operation",
+      "param": "duration",
+      "fix": "Add \"Defaults to 10\" to the parameter description",
+      "docs": "https://spec.modelcontextprotocol.io/specification/2025-03-26/server/tools/"
+    },
+    {
+      "rule": "param-default-documented",
+      "severity": "info",
+      "message": "trigger-long-running-operation: parameter \"steps\" has default 5 but description doesn't mention it",
+      "tool": "trigger-long-running-operation",
+      "param": "steps",
+      "fix": "Add \"Defaults to 5\" to the parameter description",
+      "docs": "https://spec.modelcontextprotocol.io/specification/2025-03-26/server/tools/"
+    },
+    {
+      "rule": "param-default-documented",
+      "severity": "info",
+      "message": "simulate-research-query: parameter \"sources\" has default 3 but description doesn't mention it",
+      "tool": "simulate-research-query",
+      "param": "sources",
+      "fix": "Add \"Defaults to 3\" to the parameter description",
+      "docs": "https://spec.modelcontextprotocol.io/specification/2025-03-26/server/tools/"
+    },
+    {
+      "rule": "name-verb-noun",
+      "severity": "info",
+      "message": "gzip-file-as-resource: consider verb_noun naming (e.g. \"get_gzip_file_as_resource\")",
+      "tool": "gzip-file-as-resource"
+    }
+  ]
+}

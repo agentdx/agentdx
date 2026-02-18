@@ -88,6 +88,30 @@ const ACTION_VERBS = new Set([
   'cancel', 'cancels', 'approve', 'approves', 'reject', 'rejects',
   'move', 'moves', 'copy', 'copies', 'rename', 'renames',
   'test', 'tests', 'analyze', 'analyzes', 'inspect', 'inspects',
+  // Navigation & browser actions
+  'navigate', 'navigates', 'capture', 'captures', 'perform', 'performs',
+  'hover', 'hovers', 'select', 'selects', 'resize', 'resizes',
+  'take', 'takes', 'press', 'presses', 'type', 'types',
+  'fill', 'fills', 'wait', 'waits', 'reload', 'reloads',
+  'evaluate', 'evaluates', 'toggle', 'toggles', 'trigger', 'triggers',
+  'simulate', 'simulates', 'echo', 'echoes', 'drag', 'drags',
+  'click', 'clicks', 'scroll', 'scrolls', 'focus', 'focuses',
+  'submit', 'submits', 'clear', 'clears', 'attach', 'attaches',
+  'detach', 'detaches', 'emit', 'emits', 'listen', 'listens',
+  'watch', 'watches', 'poll', 'polls', 'ping', 'pings',
+  'render', 'renders', 'format', 'formats', 'sort', 'sorts',
+  'filter', 'filters', 'merge', 'merges', 'split', 'splits',
+  'encode', 'encodes', 'decode', 'decodes', 'encrypt', 'encrypts',
+  'decrypt', 'decrypts', 'compress', 'compresses', 'decompress', 'decompresses',
+  'count', 'counts', 'measure', 'measures', 'compare', 'compares',
+  'notify', 'notifies', 'alert', 'alerts', 'warn', 'warns',
+  'accept', 'accepts', 'deny', 'denies', 'grant', 'grants',
+  'revoke', 'revokes', 'assign', 'assigns', 'release', 'releases',
+  'lock', 'locks', 'unlock', 'unlocks', 'publish', 'publishes',
+  'index', 'indexes', 'scan', 'scans', 'crawl', 'crawls',
+  'schedule', 'schedules', 'pause', 'pauses', 'resume', 'resumes',
+  'archive', 'archives', 'restore', 'restores', 'backup', 'backups',
+  'register', 'registers', 'unregister', 'unregisters',
 ]);
 
 export const descActionVerb: LintRule = {
@@ -193,7 +217,7 @@ export const descUnique: LintRule = {
 };
 
 const PURPOSE_PATTERNS = [
-  /\b(retriev|fetch|get|return|creat|updat|delet|remov|search|list|find|send|generat|comput|calculat|convert|transform|validat|check|verif|pars|extract|resolv|configur|monitor|subscrib|deploy|build|install)/i,
+  /\b(retriev|fetch|get|return|creat|updat|delet|remov|search|list|find|send|generat|comput|calculat|convert|transform|validat|check|verif|pars|extract|resolv|configur|monitor|subscrib|deploy|build|install|navigat|captur|click|hover|select|clos|resiz|press|type|fill|upload|wait|reload|evaluat|drag|toggl|trigger|simulat|echo|scroll|render|format|submit|clear|encod|decod|encrypt|decrypt|compress|decompress|scan|crawl|publish|index|schedul|paus|resum|archiv|restor|backup|register)/i,
 ];
 
 export const descStatesPurpose: LintRule = {

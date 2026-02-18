@@ -1,0 +1,55 @@
+
+  AgentDX Lint — @modelcontextprotocol/server-filesystem (14 tools)
+
+  ⚠ warn   read_multiple_files: description is 324 chars — consider shortening  [desc-max-length]
+  ⚠ warn   write_file: description is 233 chars — consider shortening  [desc-max-length]
+  ⚠ warn   create_directory: description is 219 chars — consider shortening  [desc-max-length]
+  ⚠ warn   list_directory: description is 201 chars — consider shortening  [desc-max-length]
+  ⚠ warn   directory_tree: description is 258 chars — consider shortening  [desc-max-length]
+  ⚠ warn   move_file: description is 263 chars — consider shortening  [desc-max-length]
+  ⚠ warn   search_files: description is 263 chars — consider shortening  [desc-max-length]
+  ⚠ warn   edit_file: description should start with a verb (e.g. "Retrieves…", "Creates…")  [desc-action-verb]
+  ⚠ warn   search_files: description should start with a verb (e.g. "Retrieves…", "Creates…")  [desc-action-verb]
+  ℹ info   read_file: vague term "Handles" — be more specific about what this tool does  [desc-clarity]
+  ℹ info   read_file: description lacks usage guidance — explain when to use this tool  [description-includes-usage-guidance]
+         → Add context like "Use this to..." or "Call when..." to help the LLM choose the right tool
+  ℹ info   read_text_file: description lacks usage guidance — explain when to use this tool  [description-includes-usage-guidance]
+         → Add context like "Use this to..." or "Call when..." to help the LLM choose the right tool
+  ℹ info   read_media_file: description lacks usage guidance — explain when to use this tool  [description-includes-usage-guidance]
+         → Add context like "Use this to..." or "Call when..." to help the LLM choose the right tool
+  ℹ info   write_file: description lacks usage guidance — explain when to use this tool  [description-includes-usage-guidance]
+         → Add context like "Use this to..." or "Call when..." to help the LLM choose the right tool
+  ℹ info   edit_file: description lacks usage guidance — explain when to use this tool  [description-includes-usage-guidance]
+         → Add context like "Use this to..." or "Call when..." to help the LLM choose the right tool
+  ℹ info   create_directory: description lacks usage guidance — explain when to use this tool  [description-includes-usage-guidance]
+         → Add context like "Use this to..." or "Call when..." to help the LLM choose the right tool
+  ℹ info   list_directory: description lacks usage guidance — explain when to use this tool  [description-includes-usage-guidance]
+         → Add context like "Use this to..." or "Call when..." to help the LLM choose the right tool
+  ℹ info   list_directory_with_sizes: description lacks usage guidance — explain when to use this tool  [description-includes-usage-guidance]
+         → Add context like "Use this to..." or "Call when..." to help the LLM choose the right tool
+  ℹ info   directory_tree: description lacks usage guidance — explain when to use this tool  [description-includes-usage-guidance]
+         → Add context like "Use this to..." or "Call when..." to help the LLM choose the right tool
+  ℹ info   move_file: description lacks usage guidance — explain when to use this tool  [description-includes-usage-guidance]
+         → Add context like "Use this to..." or "Call when..." to help the LLM choose the right tool
+  ℹ info   search_files: description lacks usage guidance — explain when to use this tool  [description-includes-usage-guidance]
+         → Add context like "Use this to..." or "Call when..." to help the LLM choose the right tool
+  ℹ info   get_file_info: description lacks usage guidance — explain when to use this tool  [description-includes-usage-guidance]
+         → Add context like "Use this to..." or "Call when..." to help the LLM choose the right tool
+  ℹ info   list_allowed_directories: description doesn't mention any constraints or limitations  [description-states-limitations]
+         → Document limits like max results, rate limits, required permissions, or data restrictions
+  ℹ info   edit_file: complex tool (3 params) lacks examples in description  [description-has-examples]
+         → Add example inputs like 'e.g. {"query": "weather in NYC"}' to help the LLM understand usage
+  ℹ info   search_files: complex tool (3 params) lacks examples in description  [description-has-examples]
+         → Add example inputs like 'e.g. {"query": "weather in NYC"}' to help the LLM understand usage
+  ℹ info   edit_file: "dryRun" is boolean — consider an enum for clarity (e.g. "mode": "summary" | "full")  [schema-enum-bool]
+  ℹ info   search_files: optional parameter "excludePatterns" has no default value  [schema-defaults]
+  ℹ info   edit_file: parameter "dryRun" has default false but description doesn't mention it  [param-default-documented]
+         → Add "Defaults to false" to the parameter description
+  ℹ info   directory_tree: consider verb_noun naming (e.g. "get_directory_tree")  [name-verb-noun]
+  ℹ info   Tools sharing "file" could use consistent prefix grouping: read_file, read_text_file, read_media_file, write_file, edit_file, move_file  [name-prefix]
+  ℹ info   Tools sharing "files" could use consistent prefix grouping: read_multiple_files, search_files  [name-prefix]
+  ℹ info   Tools sharing "directory" could use consistent prefix grouping: create_directory, list_directory  [name-prefix]
+
+  ✓ 18 rules passed | ⚠ 9 warnings | ℹ 23 info
+
+  Lint Score: 85/100

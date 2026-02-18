@@ -1,0 +1,81 @@
+
+  AgentDX Lint — @modelcontextprotocol/server-everything (18 tools)
+
+  ⚠ warn   trigger-elicitation-request: description too similar to trigger-elicitation-request-async — LLM won't know which to pick  [desc-unique]
+         → Differentiate the descriptions of "trigger-elicitation-request" and "trigger-elicitation-request-async" to clarify their distinct purposes
+  ⚠ warn   trigger-sampling-request: description too similar to trigger-sampling-request-async — LLM won't know which to pick  [desc-unique]
+         → Differentiate the descriptions of "trigger-sampling-request" and "trigger-sampling-request-async" to clarify their distinct purposes
+  ⚠ warn   get-sum: description doesn't clearly state what the tool does  [description-states-purpose]
+         → Rewrite to clearly state the action: "Retrieves...", "Creates...", "Searches..."
+  ⚠ warn   get-sum: parameter "a" has no description  [schema-param-desc]
+  ⚠ warn   get-sum: parameter "b" has no description  [schema-param-desc]
+  ⚠ warn   get-annotated-message: parameter "includeMetadata" has no description  [schema-param-desc]
+  ⚠ warn   get-annotated-message: has 2 parameter(s) but none marked as required  [schema-required]
+  ⚠ warn   trigger-long-running-operation: has 2 parameter(s) but none marked as required  [schema-required]
+  ⚠ warn   get-annotated-message: parameter "messageStyle" has enum values [cheerful, professional, casual] but doesn't document what they mean  [param-enum-documented]
+         → Add descriptions for each enum value in the parameter description, e.g. '"celsius" = metric, "fahrenheit" = imperial'
+  ℹ info   get-env: description lacks usage guidance — explain when to use this tool  [description-includes-usage-guidance]
+         → Add context like "Use this to..." or "Call when..." to help the LLM choose the right tool
+  ℹ info   get-resource-links: description lacks usage guidance — explain when to use this tool  [description-includes-usage-guidance]
+         → Add context like "Use this to..." or "Call when..." to help the LLM choose the right tool
+  ℹ info   get-structured-content: description lacks usage guidance — explain when to use this tool  [description-includes-usage-guidance]
+         → Add context like "Use this to..." or "Call when..." to help the LLM choose the right tool
+  ℹ info   get-roots-list: description lacks usage guidance — explain when to use this tool  [description-includes-usage-guidance]
+         → Add context like "Use this to..." or "Call when..." to help the LLM choose the right tool
+  ℹ info   gzip-file-as-resource: description lacks usage guidance — explain when to use this tool  [description-includes-usage-guidance]
+         → Add context like "Use this to..." or "Call when..." to help the LLM choose the right tool
+  ℹ info   toggle-simulated-logging: description lacks usage guidance — explain when to use this tool  [description-includes-usage-guidance]
+         → Add context like "Use this to..." or "Call when..." to help the LLM choose the right tool
+  ℹ info   toggle-subscriber-updates: description lacks usage guidance — explain when to use this tool  [description-includes-usage-guidance]
+         → Add context like "Use this to..." or "Call when..." to help the LLM choose the right tool
+  ℹ info   trigger-elicitation-request: description lacks usage guidance — explain when to use this tool  [description-includes-usage-guidance]
+         → Add context like "Use this to..." or "Call when..." to help the LLM choose the right tool
+  ℹ info   trigger-elicitation-request-async: description lacks usage guidance — explain when to use this tool  [description-includes-usage-guidance]
+         → Add context like "Use this to..." or "Call when..." to help the LLM choose the right tool
+  ℹ info   trigger-sampling-request: description lacks usage guidance — explain when to use this tool  [description-includes-usage-guidance]
+         → Add context like "Use this to..." or "Call when..." to help the LLM choose the right tool
+  ℹ info   trigger-sampling-request-async: description lacks usage guidance — explain when to use this tool  [description-includes-usage-guidance]
+         → Add context like "Use this to..." or "Call when..." to help the LLM choose the right tool
+  ℹ info   trigger-long-running-operation: description lacks usage guidance — explain when to use this tool  [description-includes-usage-guidance]
+         → Add context like "Use this to..." or "Call when..." to help the LLM choose the right tool
+  ℹ info   simulate-research-query: description lacks usage guidance — explain when to use this tool  [description-includes-usage-guidance]
+         → Add context like "Use this to..." or "Call when..." to help the LLM choose the right tool
+  ℹ info   get-env: description doesn't mention any constraints or limitations  [description-states-limitations]
+         → Document limits like max results, rate limits, required permissions, or data restrictions
+  ℹ info   get-structured-content: description doesn't mention any constraints or limitations  [description-states-limitations]
+         → Document limits like max results, rate limits, required permissions, or data restrictions
+  ℹ info   get-roots-list: description doesn't mention any constraints or limitations  [description-states-limitations]
+         → Document limits like max results, rate limits, required permissions, or data restrictions
+  ℹ info   gzip-file-as-resource: description doesn't mention any constraints or limitations  [description-states-limitations]
+         → Document limits like max results, rate limits, required permissions, or data restrictions
+  ℹ info   toggle-subscriber-updates: description doesn't mention any constraints or limitations  [description-states-limitations]
+         → Document limits like max results, rate limits, required permissions, or data restrictions
+  ℹ info   trigger-elicitation-request: description doesn't mention any constraints or limitations  [description-states-limitations]
+         → Document limits like max results, rate limits, required permissions, or data restrictions
+  ℹ info   trigger-elicitation-request-async: description doesn't mention any constraints or limitations  [description-states-limitations]
+         → Document limits like max results, rate limits, required permissions, or data restrictions
+  ℹ info   trigger-sampling-request: description doesn't mention any constraints or limitations  [description-states-limitations]
+         → Document limits like max results, rate limits, required permissions, or data restrictions
+  ℹ info   trigger-sampling-request-async: description doesn't mention any constraints or limitations  [description-states-limitations]
+         → Document limits like max results, rate limits, required permissions, or data restrictions
+  ℹ info   trigger-long-running-operation: description doesn't mention any constraints or limitations  [description-states-limitations]
+         → Document limits like max results, rate limits, required permissions, or data restrictions
+  ℹ info   simulate-research-query: description doesn't mention any constraints or limitations  [description-states-limitations]
+         → Document limits like max results, rate limits, required permissions, or data restrictions
+  ℹ info   get-annotated-message: "includeMetadata" is boolean — consider an enum for clarity (e.g. "mode": "summary" | "full")  [schema-enum-bool]
+  ℹ info   toggle-simulated-logging: "enabled" is boolean — consider an enum for clarity (e.g. "mode": "summary" | "full")  [schema-enum-bool]
+  ℹ info   toggle-subscriber-updates: "enabled" is boolean — consider an enum for clarity (e.g. "mode": "summary" | "full")  [schema-enum-bool]
+  ℹ info   get-annotated-message: optional parameter "messageStyle" has no default value  [schema-defaults]
+  ℹ info   get-annotated-message: parameter "includeMetadata" has default true but description doesn't mention it  [param-default-documented]
+         → Add "Defaults to true" to the parameter description
+  ℹ info   trigger-long-running-operation: parameter "duration" has default 10 but description doesn't mention it  [param-default-documented]
+         → Add "Defaults to 10" to the parameter description
+  ℹ info   trigger-long-running-operation: parameter "steps" has default 5 but description doesn't mention it  [param-default-documented]
+         → Add "Defaults to 5" to the parameter description
+  ℹ info   simulate-research-query: parameter "sources" has default 3 but description doesn't mention it  [param-default-documented]
+         → Add "Defaults to 3" to the parameter description
+  ℹ info   gzip-file-as-resource: consider verb_noun naming (e.g. "get_gzip_file_as_resource")  [name-verb-noun]
+
+  ✓ 18 rules passed | ⚠ 9 warnings | ℹ 33 info
+
+  Lint Score: 82/100
