@@ -1,80 +1,76 @@
-# AgentDX — MCP Developer Toolkit CLI
+# CLAUDE.md — AgentDX Project Memory
 
-A CLI that owns the full MCP server developer lifecycle: scaffold → develop → lint → test → benchmark → publish. Think "Vercel CLI for MCP servers."
+## What is AgentDX?
+
+A quality measurement tool for MCP servers. Two core commands:
+- `agentdx lint` — static analysis of tool descriptions, schemas, naming
+- `agentdx bench` — LLM-based evaluation producing the Agent DX Score (0-100)
+
+**Not** a hosting platform, registry, or scaffolding tool. The `init` and `dev` commands exist as utilities but are not the product.
+
+## Tech Stack
+
+- TypeScript 5.x strict, ESM, Node 22+
+- Commander.js (CLI), @clack/prompts (interactive)
+- @modelcontextprotocol/sdk (MCP Client class)
+- @anthropic-ai/sdk (primary LLM), openai SDK (secondary + Ollama)
+- zod v4 (validation), Ajv (JSON Schema), yaml (config)
+- tsup (build), tsx (dev), Vitest (test)
+- execa (process spawn), chokidar (file watch)
+
+## Commands
+
+```bash
+npm run build      # tsup → dist/
+npm run dev        # tsx watch mode
+npm test           # vitest
+npm run typecheck  # tsc --noEmit
+```
 
 ## Project Structure
 
 ```
 src/
-├── cli/                  # Command definitions (Commander.js)
-│   ├── index.ts          # Entry point
-│   └── commands/         # One file per command (init, dev, lint, test, bench, publish, doctor, install, config)
-├── core/                 # Business logic, no CLI concerns
-│   ├── mcp-client/       # Wraps @modelcontextprotocol/sdk — connects to servers, calls tools, records interactions
-│   ├── schema-engine/    # Parses, validates, scores MCP tool schemas. Powers lint.
-│   ├── llm-adapter/      # Pluggable LLM interface. Anthropic primary, OpenAI secondary, Ollama for local.
-│   ├── test-runner/      # Agent simulation tests — spins up LLM, has it use tools, evaluates results
-│   ├── bench-runner/     # Quantitative benchmarking — runs test scenarios N times, computes Agent DX Score
-│   ├── scaffolder/       # Project generation from templates and OpenAPI specs
-│   └── registry-client/  # API client for the AgentDX registry
-├── plugins/              # Plugin loader and interfaces
-└── utils/                # Config, logging, fs helpers, process management
+├── cli/              # CLI entry + commands
+│   ├── index.ts      # Commander program
+│   └── commands/     # init, dev, lint, bench
+├── core/             # Shared: MCP client, config, auto-detect
+├── lint/             # Rule engine + rules + formatters
+│   ├── rules/        # Pure functions: descriptions, schemas, naming, errors
+│   └── formatters/   # text, json, sarif
+├── bench/            # Bench engine
+│   ├── scenarios/    # Generator + YAML loader
+│   ├── evaluators/   # tool-selection, params, ambiguity, multi-tool, error-recovery
+│   └── llm/          # Adapter pattern: anthropic, openai, ollama
+└── shared/           # Logger, utilities
 ```
-
-## Tech Stack
-
-- **Language:** TypeScript 5.x, strict mode, ESM (`"type": "module"`)
-- **Runtime:** Node.js 22+
-- **CLI:** Commander.js for commands, @clack/prompts for wizards, Ink (React) only for REPL and live progress
-- **MCP:** @modelcontextprotocol/sdk (official SDK, wraps it — never reimplement protocol logic)
-- **LLM:** @anthropic-ai/sdk (primary), openai package (secondary + Ollama compat)
-- **Validation:** zod v4 (MCP SDK peer dep), Ajv for JSON Schema
-- **Build:** tsup (production bundle), tsx (dev execution)
-- **Test:** Vitest
-- **Process:** execa for spawning MCP servers, chokidar for file watch
-- **Config:** yaml package for agentdx.config.yaml parsing
-
-## Commands
-
-```bash
-npm run build          # tsup — bundles to dist/
-npm run dev            # tsx src/cli/index.ts
-npm run test           # vitest run
-npm run test:watch     # vitest
-npm run lint:code      # eslint + prettier
-npm run typecheck      # tsc --noEmit
-```
-
-## Key Conventions
-
-- ESM imports everywhere. `import { x } from 'y'`, never `require()`.
-- One file per CLI command in `src/cli/commands/`. Each exports a function that receives the Commander program and adds its command.
-- Core modules have zero CLI dependencies. `src/core/` never imports from `src/cli/`.
-- All async operations use async/await, never raw callbacks.
-- Error handling: throw typed errors from core, catch and format in CLI layer. See `src/utils/errors.ts` for error classes.
-- No classes unless genuinely stateful. Prefer functions + interfaces.
-- Naming: kebab-case for files, camelCase for variables/functions, PascalCase for types/interfaces.
 
 ## Architecture Rules
 
-- IMPORTANT: The MCP client wraps `@modelcontextprotocol/sdk`. Never reimplement JSON-RPC, transport negotiation, or protocol handshakes.
-- IMPORTANT: LLM calls go through `src/core/llm-adapter/adapter.ts` interface. Never call Anthropic/OpenAI SDKs directly from commands or test runner.
-- The schema engine extracts tool definitions by connecting to a running MCP server and calling `listTools()`. It does NOT parse source code.
-- Test scenarios are YAML files in `tests/scenarios/`. See `docs/scenarios.md` for the schema.
-- The Agent DX Score formula lives in `src/core/bench-runner/scorer.ts`. It's a weighted composite — see the spec in `docs/SPEC.md` section 3.5.
+1. `core/` never imports from `cli/`, `lint/`, or `bench/`
+2. `lint/` and `bench/` never import from each other
+3. `cli/` only imports command entry functions, not internals
+4. All LLM calls go through `bench/llm/adapter.ts` — never call SDKs directly from evaluators
+5. Lint rules are pure functions — no side effects, no I/O
+6. Evaluators are pure functions — take inputs, return scores
 
-## Spec Documents
+## Key Conventions
 
-Full project specification, architecture, and launch plan are in `docs/`:
-- `docs/SPEC.md` — What to build: CLI commands, config format, registry API, roadmap
-- `docs/ARCHITECTURE.md` — How to build: infrastructure, internal architecture, security, launch playbook
+- ESM only (`import/export`, no `require`)
+- No classes unless stateful (rules and evaluators are plain functions)
+- Errors: catch at command level, show human message, exit with code
+- Config is always optional — zero-config with auto-detect is the goal
+- Types in `src/core/types.ts` for shared interfaces
 
-When implementing a feature, always check the relevant spec section first.
+## Current State
 
-## Working Style
+- [x] Phase 0: CLI skeleton, `init`, `dev` — working and published to npm
+- [ ] Phase 1: `lint` — next to implement
+- [ ] Phase 2: `bench` — after lint
 
-- Run `npm run typecheck` after making changes to catch type errors early.
-- Run relevant tests, not the whole suite: `npx vitest run src/core/schema-engine`
-- When adding a new CLI command: create `src/cli/commands/<name>.ts`, register it in `src/cli/index.ts`, add corresponding core logic in `src/core/`.
-- When modifying LLM prompts: prompts live in `src/core/llm-adapter/prompts/`. They are plain template strings, not magic.
-- Commit messages: conventional commits (`feat:`, `fix:`, `refactor:`, `docs:`, `test:`).
+## Implementation Notes
+
+- Extract MCP client logic from `dev.ts` into `src/core/mcp-client.ts` before starting lint
+- Lint connects to server only to discover tools, then disconnects
+- Bench sends tool definitions to LLM — it does NOT execute the actual tools
+- Multiple runs per scenario (default 3) with majority vote for consistency

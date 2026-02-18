@@ -1,28 +1,20 @@
----
-name: test-verify
-description: Write tests for a module or verify existing tests pass. Use after implementing a feature.
----
+# Skill: /test-verify
 
-# Test & Verify: $ARGUMENTS
+## When to use
+When writing tests for lint rules or evaluators, or verifying existing features.
 
-## Find What Needs Testing
+## Workflow
+1. Identify what's being tested (lint rule, evaluator, command, core module)
+2. Create test file in the matching `tests/` directory
+3. For lint rules: create fixture ToolDefinition arrays (good and bad examples), assert LintResult output
+4. For evaluators: create mock BenchScenario + LLMResponse pairs, assert EvaluatorResult scores
+5. For commands: integration test — scaffold a fixture server, run the command, assert output
+6. Run `npm test` — all must pass
+7. Run `npm run typecheck` — must pass
+8. Check coverage for the module: `npx vitest --coverage <file>`
 
-1. Identify the module or feature to test
-2. Check if a test file already exists at the mirrored path under `tests/` or colocated as `*.test.ts`
-3. Read the implementation to understand inputs, outputs, edge cases
-
-## Write Tests Using Vitest
-
-- Import from `vitest`: `import { describe, it, expect, vi, beforeEach } from 'vitest'`
-- Mock external dependencies (LLM calls, file system, MCP connections) with `vi.mock()`
-- IMPORTANT: never make real LLM API calls in tests. Mock the adapter.
-- IMPORTANT: never spawn real MCP server processes in unit tests. Mock the client.
-- Test the happy path first, then edge cases, then error handling
-- Use descriptive test names: `it('returns error when tool name contains spaces')`
-
-## Run & Verify
-
-1. Run the specific test: `npx vitest run <test-file>`
-2. If tests fail, read the error, fix the issue, run again
-3. Run typecheck: `npm run typecheck`
-4. Only report done when tests pass and types check
+## Test patterns
+- Lint rules: test with `[]` tools (empty), single tool (one issue), multiple tools (mixed results)
+- Evaluators: test with perfect responses, partial failures, complete failures
+- Never make real LLM calls in tests — use mock adapter
+- Fixture servers live in `tests/fixtures/`

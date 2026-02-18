@@ -1,11 +1,12 @@
 import type { Command } from 'commander';
-import { Client } from '@modelcontextprotocol/sdk/client';
-import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { createInterface } from 'node:readline';
-import { parse as yamlParse } from 'yaml';
 import { watch as watchFiles } from 'chokidar';
+import { connectToServer } from '../../core/mcp-client.js';
+import { loadConfig, resolveConfig } from '../../core/config.js';
+import { detectEntry } from '../../core/detect.js';
+import type { ServerConnection, ToolDefinition } from '../../core/types.js';
 
 export function registerDevCommand(program: Command): void {
   program
@@ -17,42 +18,7 @@ export function registerDevCommand(program: Command): void {
     });
 }
 
-async function connectToServer(entrypoint: string) {
-  const transport = new StdioClientTransport({
-    command: 'npx',
-    args: ['tsx', entrypoint],
-    stderr: 'pipe',
-  });
-
-  const client = new Client({ name: 'agentdx', version: '0.1.0' });
-  await client.connect(transport);
-
-  if (transport.stderr) {
-    transport.stderr.on('data', (chunk: Buffer) => {
-      const text = chunk.toString().trimEnd();
-      if (text) {
-        for (const line of text.split('\n')) {
-          console.error(`  [server] ${line}`);
-        }
-      }
-    });
-  }
-
-  const { tools } = await client.listTools();
-  return { client, transport, tools };
-}
-
-type DevSession = Awaited<ReturnType<typeof connectToServer>>;
-
-async function closeSession(session: DevSession): Promise<void> {
-  try {
-    await session.transport.close();
-  } catch {
-    // Ignore cleanup errors
-  }
-}
-
-function printTools(tools: DevSession['tools']): void {
+function printTools(tools: ToolDefinition[]): void {
   if (tools.length === 0) {
     console.log('  (no tools registered)');
     return;
@@ -62,29 +28,28 @@ function printTools(tools: DevSession['tools']): void {
   }
 }
 
-async function runDevServer(entrypointArg?: string, watchEnabled = true): Promise<void> {
-  // 1. Read config
-  const configPath = resolve('agentdx.config.yaml');
-  let configEntrypoint: string | undefined;
-  if (existsSync(configPath)) {
-    try {
-      const raw = yamlParse(readFileSync(configPath, 'utf-8')) as
-        | { server?: { entrypoint?: string } }
-        | undefined;
-      configEntrypoint = raw?.server?.entrypoint;
-    } catch {
-      // Ignore parse errors
-    }
-  }
+async function createSession(entry: string): Promise<ServerConnection> {
+  return connectToServer({
+    entry,
+    onStderr(line) {
+      console.error(`  [server] ${line}`);
+    },
+  });
+}
 
-  const rawEntrypoint = entrypointArg ?? configEntrypoint;
-  if (!rawEntrypoint) {
+async function runDevServer(entrypointArg?: string, watchEnabled = true): Promise<void> {
+  // 1. Resolve entry point
+  const raw = loadConfig();
+  const config = resolveConfig(raw);
+  const entry = entrypointArg ?? detectEntry(process.cwd(), config.entry);
+
+  if (!entry) {
     console.error(
       'Error: No entrypoint found. Provide one as argument or create agentdx.config.yaml.',
     );
     process.exit(1);
   }
-  const entrypoint: string = rawEntrypoint;
+  const entrypoint: string = entry;
 
   if (!existsSync(resolve(entrypoint))) {
     console.error(`Error: Entrypoint "${entrypoint}" not found.`);
@@ -93,9 +58,9 @@ async function runDevServer(entrypointArg?: string, watchEnabled = true): Promis
 
   // 2. Connect
   console.log(`Starting MCP server: ${entrypoint}`);
-  let session: DevSession;
+  let conn: ServerConnection;
   try {
-    session = await connectToServer(entrypoint);
+    conn = await createSession(entrypoint);
   } catch (err) {
     console.error(
       `Failed to connect: ${err instanceof Error ? err.message : err}`,
@@ -103,8 +68,8 @@ async function runDevServer(entrypointArg?: string, watchEnabled = true): Promis
     process.exit(1);
   }
 
-  console.log(`\nConnected. ${session.tools.length} tool(s) available:`);
-  printTools(session.tools);
+  console.log(`\nConnected. ${conn.tools.length} tool(s) available:`);
+  printTools(conn.tools);
   console.log('\nType .help for available commands.\n');
 
   // 3. REPL
@@ -121,10 +86,10 @@ async function runDevServer(entrypointArg?: string, watchEnabled = true): Promis
     if (isReconnecting) return;
     isReconnecting = true;
     console.log('\nReconnecting...');
-    await closeSession(session);
+    await conn.close();
     try {
-      session = await connectToServer(entrypoint);
-      console.log(`Reconnected. ${session.tools.length} tool(s) available.`);
+      conn = await createSession(entrypoint);
+      console.log(`Reconnected. ${conn.tools.length} tool(s) available.`);
     } catch (err) {
       console.error(
         `Failed to reconnect: ${err instanceof Error ? err.message : err}`,
@@ -141,7 +106,7 @@ async function runDevServer(entrypointArg?: string, watchEnabled = true): Promis
     console.log('\nShutting down...');
     if (watcher) await watcher.close();
     rl.close();
-    await closeSession(session);
+    await conn.close();
     process.exit(0);
   }
 
@@ -167,7 +132,7 @@ async function runDevServer(entrypointArg?: string, watchEnabled = true): Promis
 
     void (async () => {
       try {
-        await handleInput(input, session, reconnect, shutdown);
+        await handleInput(input, conn, reconnect, shutdown);
       } catch (err) {
         console.error(`Error: ${err instanceof Error ? err.message : err}`);
       }
@@ -184,7 +149,7 @@ async function runDevServer(entrypointArg?: string, watchEnabled = true): Promis
 
 async function handleInput(
   input: string,
-  session: DevSession,
+  conn: ServerConnection,
   reconnect: () => Promise<void>,
   shutdown: () => Promise<void>,
 ): Promise<void> {
@@ -201,7 +166,7 @@ Available commands:
   }
 
   if (input === '.tools') {
-    printTools(session.tools);
+    printTools(conn.tools);
     return;
   }
 
@@ -217,7 +182,7 @@ Available commands:
 
   if (input.startsWith('.schema ')) {
     const toolName = input.slice('.schema '.length).trim();
-    const tool = session.tools.find((t) => t.name === toolName);
+    const tool = conn.tools.find((t) => t.name === toolName);
     if (!tool) {
       console.log(`Unknown tool: ${toolName}. Use .tools to see available tools.`);
     } else {
@@ -237,7 +202,7 @@ Available commands:
       return;
     }
 
-    const tool = session.tools.find((t) => t.name === toolName);
+    const tool = conn.tools.find((t) => t.name === toolName);
     if (!tool) {
       console.log(`Unknown tool: ${toolName}. Use .tools to see available tools.`);
       return;
@@ -254,14 +219,11 @@ Available commands:
     }
 
     try {
-      const result = await session.client.callTool({
-        name: toolName,
-        arguments: args,
-      });
+      const result = await conn.callTool(toolName, args);
       if (result.isError) {
         console.log('Tool returned an error:');
       }
-      for (const item of result.content as Array<{ type: string; text?: string }>) {
+      for (const item of result.content) {
         if (item.type === 'text' && item.text) {
           console.log(item.text);
         } else {

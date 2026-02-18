@@ -3,6 +3,7 @@ import { dirname, join } from 'node:path';
 import { Command } from 'commander';
 import { registerInitCommand } from './commands/init.js';
 import { registerDevCommand } from './commands/dev.js';
+import { registerLintCommand } from './commands/lint.js';
 
 function loadPackageJson(): { version: string } {
   let dir = import.meta.dirname;
@@ -33,12 +34,6 @@ program
 
 registerInitCommand(program);
 registerDevCommand(program);
-
-program
-  .command('doctor [entrypoint]')
-  .description('Diagnose problems with your MCP server setup')
-  .action((_entrypoint: string | undefined) => {
-    console.log('agentdx doctor — not implemented yet');
-  });
+registerLintCommand(program);
 
 program.parse();

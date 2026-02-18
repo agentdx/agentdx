@@ -1,889 +1,599 @@
-# AgentDX — The MCP Developer Toolkit
+# AgentDX — Technical Specification
 
-**Full Technical Spec, CLI Reference & Roadmap**
+> The Agent DX Score for MCP servers.
+> `npx agentdx bench` — find out if your MCP server is actually usable by AI agents.
 
-*"The Vercel CLI for MCP servers."*
-
----
-
-## 1. Vision & Positioning
-
-### The Problem
-
-MCP (Model Context Protocol) is the de facto standard for connecting AI agents to external tools and data. The ecosystem has exploded: ~2,000 servers in the official registry, 97M+ monthly SDK downloads, adoption by Anthropic, OpenAI, Google, and thousands of developers. But the developer experience for **building** MCP servers is still fragmented and painful.
-
-Today, building an MCP server looks like this:
-
-1. Copy boilerplate from a GitHub repo or the SDK docs
-2. Guess at tool descriptions (will an LLM actually understand them?)
-3. Manually test by connecting to Claude Desktop and trying prompts
-4. No way to know if your schema is spec-compliant until it breaks
-5. No way to measure how well agents actually use your tools
-6. Deploy and hope for the best
-7. No observability into how agents call your tools in production
-
-This is the "FTP your PHP files to the server" era of MCP development. We're going to end it.
-
-### Existing Tools & Their Gaps
-
-| Tool | What it does | What it doesn't do |
-|---|---|---|
-| **MCP Inspector** (official) | Web-based UI for debugging servers, manual tool invocation | No scaffolding, no automated testing, no benchmarking, no CI/CD, no registry |
-| **mcptools** (community) | Go CLI with basic scaffolding, tool invocation, shell mode | No agent simulation, no quality scoring, no linting, no benchmarking, TS-only scaffolding |
-| **FastMCP** (Anthropic) | Python framework for building servers quickly | Framework not toolkit — no testing harness, no linting, no publishing workflow |
-| **MCP Python SDK / TS SDK** | Low-level protocol implementation | Raw SDK, not a DX layer — no opinions, no guardrails, no lifecycle tooling |
-
-**Nobody owns the full MCP server lifecycle.** That's the gap.
-
-### What AgentDX Is
-
-AgentDX is a single CLI that owns the entire MCP server developer experience: scaffold → develop → lint → test → benchmark → publish. It's opinionated where it matters (project structure, testing patterns, quality standards) and flexible where it doesn't (language, transport, model provider).
-
-Think of it as what **Vercel CLI** did for frontend deployment, or what **Docker CLI** did for containerization — but for MCP servers.
-
-### Strategic Positioning
-
-**Phase 1 (this document):** Best-in-class MCP developer toolkit. Become the way serious developers build, test, and publish MCP servers.
-
-**Phase 2 (future):** Extend into agent coordination. The metadata AgentDX generates about tool quality, reliability, and agent-friendliness becomes the foundation for orchestrating multi-agent workflows. When one agent needs to delegate to another, AgentDX's registry knows which tools are reliable, what they do, and how to compose them.
+**Version:** 0.2.0
+**Last updated:** 2026-02-17
 
 ---
 
-## 2. Technical Architecture
+## 1. What AgentDX Is
 
-### 2.1 High-Level System Design
+AgentDX is a quality measurement tool for MCP (Model Context Protocol) servers. It answers one question: **"How well can an AI agent actually use your MCP server?"**
 
-```
-┌─────────────────────────────────────────────────────────┐
-│                     AgentDX CLI                             │
-│                                                          │
-│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐   │
-│  │  init    │ │   dev    │ │   lint   │ │   test   │   │
-│  │ scaffold │ │  server  │ │ validate │ │  agent   │   │
-│  │ generate │ │   REPL   │ │  schema  │ │ simulate │   │
-│  └──────────┘ └──────────┘ └──────────┘ └──────────┘   │
-│                                                          │
-│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐   │
-│  │  bench   │ │ publish  │ │  doctor  │ │  config  │   │
-│  │ measure  │ │ registry │ │ diagnose │ │  manage  │   │
-│  │  score   │ │ release  │ │  fix     │ │  auth    │   │
-│  └──────────┘ └──────────┘ └──────────┘ └──────────┘   │
-│                                                          │
-│  ┌────────────────────────────────────────────────────┐  │
-│  │              Core Engine Layer                      │  │
-│  │                                                     │  │
-│  │  ┌─────────────┐  ┌─────────────┐  ┌────────────┐ │  │
-│  │  │ MCP Client  │  │   Schema    │  │   Report   │ │  │
-│  │  │  (stdlib)   │  │   Engine    │  │  Generator │ │  │
-│  │  └─────────────┘  └─────────────┘  └────────────┘ │  │
-│  │                                                     │  │
-│  │  ┌─────────────┐  ┌─────────────┐  ┌────────────┐ │  │
-│  │  │   LLM       │  │  Transport  │  │   Plugin   │ │  │
-│  │  │  Adapter    │  │   Manager   │  │   System   │ │  │
-│  │  └─────────────┘  └─────────────┘  └────────────┘ │  │
-│  └────────────────────────────────────────────────────┘  │
-└─────────────────────────────────────────────────────────┘
-                          │
-                          ▼
-┌─────────────────────────────────────────────────────────┐
-│                   AgentDX Registry                          │
-│                                                          │
-│  ┌─────────────┐  ┌─────────────┐  ┌────────────────┐  │
-│  │   Package    │  │   Quality   │  │  Compatibility │  │
-│  │   Storage    │  │   Scores    │  │    Matrix      │  │
-│  └─────────────┘  └─────────────┘  └────────────────┘  │
-└─────────────────────────────────────────────────────────┘
+It does this through two commands:
+
+- **`agentdx lint`** — Static analysis. Fast, free, no LLM needed. Catches structural problems in tool definitions, schemas, and naming.
+- **`agentdx bench`** — LLM-based evaluation. Sends your tool definitions to a real LLM and measures whether it can select the right tools, fill parameters correctly, and handle errors. Produces the **Agent DX Score** (0–100).
+
+That's the product. Everything else is a utility.
+
+### What AgentDX is NOT
+
+- Not a hosting/deployment platform (use Manufact, Railway, Fly, etc.)
+- Not a registry or marketplace (npm and the MCP server list already exist)
+- Not a scaffolding tool (AI coding agents do this better)
+- Not an MCP client/runtime (use mcp-use, Claude, Cursor, etc.)
+
+### Retained utilities (already built, low priority)
+
+- **`agentdx init`** — Scaffolds a new MCP server project. Already implemented. Stays as a convenience, not marketed as core.
+- **`agentdx dev`** — Spawns server + REPL for interactive testing. Already implemented. Useful during development, but not the product.
+
+---
+
+## 2. Installation & Usage
+
+### Zero-config usage (the ideal)
+
+```bash
+# In any MCP server project directory
+npx agentdx lint
+npx agentdx bench
 ```
 
-### 2.2 Core Components
+No config file required. AgentDX auto-detects the server entry point by scanning for common patterns:
 
-#### MCP Client (stdlib)
-A built-in MCP client implementation that can connect to any server via stdio, SSE, or streamable HTTP. Used by `dev`, `test`, and `bench` commands to interact with the server under development. Unlike the official Inspector (which runs in a browser), this runs entirely in the terminal and is scriptable.
+1. `agentdx.config.yaml` (if present, use it)
+2. `package.json` → `main` or `bin` field
+3. `src/index.ts` or `src/index.js`
+4. `index.ts` or `index.js`
 
-#### Schema Engine
-Parses, validates, and analyzes MCP tool/resource/prompt schemas. Powers the `lint` command. Validates against the MCP spec (currently 2025-11-25), checks for common anti-patterns, and scores description quality for LLM comprehension.
+### Global install
 
-#### LLM Adapter
-Pluggable interface for calling language models during `test` and `bench`. Supports Anthropic (default), OpenAI, and local models via Ollama/OpenRouter. The adapter handles prompt construction for agent simulation — it frames the LLM as an agent that must accomplish tasks using only the tools your server exposes.
-
-#### Transport Manager
-Handles server lifecycle: spawning stdio processes, connecting to SSE/HTTP endpoints, managing health checks, graceful shutdown. Abstracts transport so all commands work identically regardless of how the server communicates.
-
-#### Report Generator
-Produces structured output from lint, test, and bench runs. Supports terminal (default), JSON (for CI/CD), and HTML (for sharing). Reports are also stored locally in `.agentdx/reports/` for trend tracking.
-
-#### Plugin System
-Extension point for community contributions. Plugins can add custom lint rules, test generators, benchmark suites, and scaffolding templates. Distributed via npm.
-
-### 2.3 Project Structure (Generated by `agentdx init`)
-
-```
-my-mcp-server/
-├── src/
-│   ├── index.ts              # Server entrypoint
-│   ├── tools/                # One file per tool
-│   │   ├── search.ts
-│   │   └── create.ts
-│   ├── resources/            # Resource handlers
-│   │   └── schema.ts
-│   └── prompts/              # Prompt templates
-│       └── summarize.ts
-├── tests/
-│   ├── scenarios/            # Agent simulation scenarios
-│   │   ├── happy-path.yaml
-│   │   └── edge-cases.yaml
-│   └── unit/                 # Standard unit tests
-│       └── tools.test.ts
-├── agentdx.config.yaml          # AgentDX configuration
-├── package.json
-├── tsconfig.json
-└── README.md                 # Auto-generated from schemas
+```bash
+npm install -g agentdx
+agentdx lint
+agentdx bench
 ```
 
-### 2.4 Configuration File: `agentdx.config.yaml`
+### With config (optional)
 
 ```yaml
 # agentdx.config.yaml
-version: 1
-
 server:
-  name: "my-mcp-server"
-  version: "0.1.0"
-  description: "Does something useful for agents"
-  transport: stdio              # stdio | sse | streamable-http
-  language: typescript          # typescript | python
-  entrypoint: src/index.ts
+  name: my-weather-server
+  entry: src/index.ts
+  transport: stdio
 
 lint:
   rules:
     description-min-length: 20
-    description-max-length: 500
-    require-examples: true
-    require-error-descriptions: true
-    max-parameters-per-tool: 8
-    naming-convention: kebab-case
-  custom-rules: []              # paths to plugin rules
-
-test:
-  provider: anthropic           # anthropic | openai | ollama | openrouter
-  model: claude-sonnet-4-5-20250929
-  scenarios: tests/scenarios/
-  timeout: 30s
-  max-retries: 3
-  parallel: true
+    description-max-length: 200
+    require-param-descriptions: true
+    require-error-schemas: warn
+    naming-convention: verb_noun
 
 bench:
-  runs: 10                      # iterations per scenario
-  provider: anthropic
-  model: claude-sonnet-4-5-20250929
-  metrics:
-    - tool-selection-accuracy
-    - parameter-correctness
-    - retry-rate
-    - latency-p50
-    - latency-p95
-
-publish:
-  registry: https://registry.agentdx.dev
-  visibility: public            # public | unlisted | private
-  license: MIT
-```
-
-### 2.5 Data Flow: How a Test Run Works
-
-```
-1. agentdx test --scenario happy-path.yaml
-   │
-2. Transport Manager spawns MCP server (stdio/SSE/HTTP)
-   │
-3. Schema Engine extracts tool definitions from server
-   │
-4. Test Runner reads scenario file:
-   │   task: "Find all Python files modified today"
-   │   expected_tools: [search_files]
-   │   expected_behavior: "Returns file list with paths and timestamps"
-   │
-5. LLM Adapter constructs agent prompt:
-   │   "You have access to these tools: [schemas]
-   │    Accomplish this task: [task description]
-   │    Use tools as needed. Think step by step."
-   │
-6. LLM generates tool calls → MCP Client sends to server
-   │
-7. Server responds → LLM receives results → may call more tools
-   │
-8. Test Runner evaluates:
-   │   ✓ Correct tool selected? (search_files, not list_directory)
-   │   ✓ Parameters valid? (path: ".", pattern: "*.py", modified_after: "today")
-   │   ✓ Task completed? (LLM indicates success with reasonable output)
-   │   ✗ Any errors? (schema mismatches, timeouts, unexpected behavior)
-   │
-9. Report Generator produces results:
-   │   Scenario: happy-path
-   │   Tool Selection: ✓ (1/1 correct)
-   │   Parameter Accuracy: 92% (missed date format on first try)
-   │   Retries: 1
-   │   Total Time: 3.2s
-   │
-10. Results stored in .agentdx/reports/2026-02-16T14:30:00.json
+  provider: anthropic           # anthropic | openai | ollama
+  model: claude-sonnet-4-5-20250514  # any supported model
+  scenarios: auto               # auto-generate scenarios, or path to scenarios file
+  runs: 3                       # repeat each scenario N times for consistency
+  temperature: 0                # deterministic by default
 ```
 
 ---
 
-## 3. CLI Command Reference
+## 3. `agentdx lint` — Static Analysis
 
-### 3.1 `agentdx init`
+### What it checks
 
-Scaffolds a new MCP server project with production-ready structure.
+Lint rules are organized into categories. Each rule produces a pass, warn, or fail.
 
-```
-agentdx init [project-name]
+#### 3.1 Tool Descriptions
 
-Options:
-  --language, -l     Language: typescript (default) | python
-  --transport, -t    Transport: stdio (default) | sse | streamable-http
-  --tools            Comma-separated tool names to scaffold
-                     e.g. --tools search,create,delete
-  --resources        Comma-separated resource names
-  --prompts          Comma-separated prompt names
-  --template         Use a community template from registry
-                     e.g. --template api-wrapper
-  --api              URL of an OpenAPI spec to auto-generate tools from
-  --no-git           Skip git initialization
-  --package-manager  npm (default) | pnpm | yarn | bun
-  --interactive, -i  Run interactive wizard (default when no flags)
+| Rule | ID | Default | What it catches |
+|---|---|---|---|
+| Description exists | `desc-exists` | error | Tool has no description at all |
+| Minimum length | `desc-min-length` | warn (20 chars) | "Gets data" — too vague for an LLM to understand |
+| Maximum length | `desc-max-length` | warn (200 chars) | Overly long descriptions that waste context window |
+| Action clarity | `desc-action-verb` | warn | Description should start with a verb ("Retrieves…", "Creates…") |
+| No jargon/ambiguity | `desc-clarity` | info | Flags common vague terms: "handles", "processes", "manages" |
+| Differentiation | `desc-unique` | warn | Two tools with nearly identical descriptions — LLM won't know which to pick |
 
-Examples:
-  agentdx init my-server
-  agentdx init my-server --tools search,create -l python
-  agentdx init my-server --api https://api.example.com/openapi.json
-  agentdx init my-server --template database-wrapper
-```
+#### 3.2 Input Schemas
 
-**What it does:**
-- Creates project directory with the structure from §2.3
-- Generates typed tool/resource/prompt skeletons with descriptive comments
-- Sets up build pipeline (TypeScript compilation or Python packaging)
-- Generates `agentdx.config.yaml` with sensible defaults
-- Creates example test scenarios
-- Initializes git repo with `.gitignore`
-- If `--api` is provided, introspects the OpenAPI spec and generates one MCP tool per endpoint with parameter mappings, descriptions derived from the API docs, and error handling stubs
+| Rule | ID | Default | What it catches |
+|---|---|---|---|
+| Schema exists | `schema-exists` | error | Tool accepts input but has no schema defined |
+| Valid JSON Schema | `schema-valid` | error | Schema doesn't conform to JSON Schema spec |
+| Param descriptions | `schema-param-desc` | warn | Parameters missing descriptions — LLM guesses what to pass |
+| Required fields marked | `schema-required` | warn | Required params not marked, LLM may omit them |
+| Enum over boolean | `schema-enum-bool` | info | `isDetailed: boolean` vs `detail_level: "summary" | "full"` — enums are clearer |
+| No `any` types | `schema-no-any` | warn | Untyped parameters — LLM has no guidance |
+| Default values | `schema-defaults` | info | Optional params without defaults — LLM doesn't know what happens if omitted |
 
-**The `--api` flag is key differentiation.** Most MCP servers wrap existing APIs. Today that's a manual process of reading API docs, writing tool definitions, mapping parameters. AgentDX automates this: point it at an OpenAPI spec and get a working MCP server in seconds. The developer then refines descriptions and adds business logic.
+#### 3.3 Naming
 
----
+| Rule | ID | Default | What it catches |
+|---|---|---|---|
+| Convention | `name-convention` | warn | Inconsistent naming (mix of camelCase, snake_case, kebab-case) |
+| Verb-noun pattern | `name-verb-noun` | info | `weather` vs `get_weather` — verb+noun is clearer for LLMs |
+| No collisions | `name-unique` | error | Duplicate tool names |
+| Prefix grouping | `name-prefix` | info | Related tools should share prefix: `file_read`, `file_write`, `file_delete` |
 
-### 3.2 `agentdx dev`
+#### 3.4 Error Handling
 
-Starts a local development server with an interactive console.
+| Rule | ID | Default | What it catches |
+|---|---|---|---|
+| Error content | `error-content` | warn | Tool returns generic errors without actionable info |
+| Error differentiation | `error-types` | info | Same error for all failure modes — LLM can't retry intelligently |
 
-```
-agentdx dev [entrypoint]
-
-Options:
-  --port, -p         Port for SSE/HTTP transport (default: 3456)
-  --watch, -w        Hot-reload on file changes (default: true)
-  --no-watch         Disable hot-reload
-  --ui               Open web UI (similar to Inspector but integrated)
-  --verbose, -v      Show raw JSON-RPC messages
-  --record           Record all interactions to .agentdx/sessions/
-
-Sub-commands within the REPL:
-  .tools             List all registered tools with schemas
-  .resources         List all resources
-  .prompts           List all prompts
-  .call <tool> <json>  Invoke a tool with JSON parameters
-  .read <resource>     Read a resource
-  .prompt <name>       Execute a prompt
-  .ask <natural lang>  Describe what you want in plain English;
-                       AgentDX translates to tool calls via LLM
-  .schema <tool>       Pretty-print a tool's full schema
-  .history             Show interaction history
-  .export              Export session as test scenario YAML
-  .clear               Clear the screen
-  .quit                Exit dev server
-
-Examples:
-  agentdx dev
-  agentdx dev src/index.ts --verbose
-  agentdx dev --record
-```
-
-**What it does:**
-- Spawns the MCP server and connects as a client
-- Provides a REPL where you can invoke tools directly
-- The `.ask` command is the killer feature: you describe what you want in natural language, AgentDX uses an LLM to generate the appropriate tool calls, executes them, and shows both the LLM's reasoning and the server's response. This lets you test "can an agent actually figure out how to use my tools?" without leaving your terminal
-- Hot-reloads when source files change (rebuilds TypeScript, reconnects)
-- `.export` converts your REPL session into a reusable test scenario
-- `--record` captures all interactions for later replay/analysis
-
----
-
-### 3.3 `agentdx lint`
-
-Validates tool definitions against the MCP spec and best practices.
+### Output format
 
 ```
-agentdx lint [entrypoint]
+$ agentdx lint
 
-Options:
-  --fix              Auto-fix issues where possible
-  --format, -f       Output format: terminal (default) | json | sarif
-  --rules            Comma-separated rule overrides
-  --severity         Minimum severity: error | warn (default) | info
-  --config           Path to custom config (default: agentdx.config.yaml)
+  AgentDX Lint — my-weather-server (5 tools)
 
-Examples:
-  agentdx lint
-  agentdx lint --fix
-  agentdx lint --format json | jq '.errors'
-  agentdx lint --severity error
+  ✗ error  get_forecast: no input schema defined                    [schema-exists]
+  ✗ error  get_forecast: duplicate description with get_weather     [desc-unique]
+  ⚠ warn   get_weather: parameter "units" has no description        [schema-param-desc]
+  ⚠ warn   get_alerts: description is 12 chars — too vague          [desc-min-length]
+  ℹ info   set_location: consider verb_noun naming → "location_set" [name-verb-noun]
+  ✓ pass   5/5 tools have descriptions
+  ✓ pass   naming is consistent (snake_case)
+  ✓ pass   no duplicate tool names
+
+  2 errors · 2 warnings · 1 info
+
+  Lint Score: 58/100
 ```
 
-**Built-in Rules:**
+### Machine-readable output
 
-| Rule | Severity | Description |
-|---|---|---|
-| `spec-compliance` | error | Tool/resource/prompt schemas match MCP spec |
-| `description-quality` | warn | Descriptions are clear enough for LLMs to understand |
-| `description-length` | warn | Not too short (<20 chars) or too long (>500 chars) |
-| `parameter-descriptions` | warn | Every parameter has a description |
-| `required-fields` | error | Required parameters are marked as such |
-| `naming-consistency` | warn | Tool names follow a consistent convention |
-| `input-validation` | warn | Parameters use JSON Schema constraints (min/max, patterns, enums) |
-| `error-handling` | warn | Error responses include meaningful descriptions |
-| `duplicate-tools` | error | No duplicate tool names |
-| `example-values` | info | Parameters include example values in descriptions |
-| `conflicting-names` | warn | Tool names don't collide with common MCP conventions |
-| `auth-scope` | info | Tools that modify data are annotated with required auth scopes |
-| `idempotency-hints` | info | Destructive tools are marked appropriately |
-| `description-llm-score` | warn | An LLM evaluates whether the description is unambiguous (uses the LLM adapter to score) |
-
-**What `--fix` auto-corrects:**
-- Adds missing `required` fields based on analysis
-- Expands terse descriptions using LLM to generate better ones (with developer approval)
-- Normalizes naming conventions
-- Adds missing JSON Schema type constraints
-- Generates example values from type information
-
----
-
-### 3.4 `agentdx test`
-
-Runs agent simulation tests against your server.
-
-```
-agentdx test [scenario-path]
-
-Options:
-  --scenario, -s     Path to specific scenario file or directory
-  --all              Run all scenarios in tests/scenarios/
-  --provider         LLM provider: anthropic (default) | openai | ollama
-  --model            Specific model to use
-  --parallel         Run scenarios in parallel (default: true)
-  --retries          Max retries per scenario (default: 3)
-  --timeout          Per-scenario timeout (default: 30s)
-  --format, -f       Output: terminal (default) | json | junit
-  --verbose, -v      Show full LLM reasoning and tool call traces
-  --record           Save full interaction traces
-  --update-snapshots Update expected output snapshots
-
-Examples:
-  agentdx test
-  agentdx test tests/scenarios/happy-path.yaml
-  agentdx test --all --verbose
-  agentdx test --provider ollama --model llama3.1
-  agentdx test --format junit > results.xml
+```bash
+agentdx lint --format json > lint-results.json
+agentdx lint --format sarif > lint-results.sarif  # for GitHub Actions integration
 ```
 
-**Scenario File Format:**
+### CI integration
 
 ```yaml
-# tests/scenarios/happy-path.yaml
-name: "Basic file search"
-description: "Agent should find Python files modified today"
-
-# The task the simulated agent must accomplish
-task: |
-  Find all Python files in the project directory that were
-  modified in the last 24 hours. Return their paths and sizes.
-
-# Expected behavior (flexible, not exact matching)
-expect:
-  tools_used:
-    - search_files           # must use this tool
-  tools_not_used:
-    - delete_file            # must NOT use this tool
-  parameters:
-    search_files:
-      path: "."              # expected value (flexible matching)
-      pattern: "*.py"        # can be regex or glob
-  result:
-    contains: ".py"          # output should contain this
-    min_items: 1             # should return at least 1 result
-  max_tool_calls: 3          # shouldn't need more than 3 calls
-  completes: true            # agent should report task complete
-
-# Optional: provide context the agent should have
-context:
-  - "The project directory is at /workspace"
-  - "There are 50 Python files in the project"
-
-# Optional: setup commands to run before the test
-setup:
-  - "mkdir -p /tmp/test-workspace"
-  - "touch /tmp/test-workspace/app.py"
-
-# Optional: cleanup
-teardown:
-  - "rm -rf /tmp/test-workspace"
+# .github/workflows/agentdx.yml
+- name: AgentDX Lint
+  run: npx agentdx lint --format sarif > results.sarif
+  
+- name: Upload SARIF
+  uses: github/codeql-action/upload-sarif@v3
+  with:
+    sarif_file: results.sarif
 ```
 
-**What it evaluates:**
+### Exit codes
 
-1. **Tool Selection Accuracy** — Did the agent pick the right tools for the task?
-2. **Parameter Correctness** — Were parameters valid and sensible?
-3. **Task Completion** — Did the agent accomplish what was asked?
-4. **Efficiency** — How many tool calls did it take? Were there unnecessary retries?
-5. **Error Recovery** — When a tool returned an error, did the agent handle it gracefully?
-6. **Safety** — Did the agent avoid using destructive tools when not needed?
-
-**Auto-generated scenarios:** When you run `agentdx test --generate`, AgentDX reads your tool schemas and uses an LLM to generate a suite of test scenarios covering happy paths, edge cases, type mismatches, missing parameters, and adversarial inputs. This gives you instant test coverage for a new server.
+- `0` — No errors (warnings and info are OK)
+- `1` — One or more errors
+- `2` — Could not connect to server / config error
 
 ---
 
-### 3.5 `agentdx bench`
+## 4. `agentdx bench` — LLM-Based Evaluation
 
-Measures how well agents actually interact with your tools. Produces a quantitative "Agent DX Score."
+This is the core product. It measures how well an AI agent can actually use your MCP server.
 
-```
-agentdx bench [entrypoint]
+### How it works
 
-Options:
-  --runs, -n         Number of iterations per scenario (default: 10)
-  --provider         LLM provider (default: anthropic)
-  --model            Specific model
-  --scenarios        Scenario directory (default: tests/scenarios/)
-  --compare          Path to previous benchmark for comparison
-  --output, -o       Output file (default: .agentdx/benchmarks/latest.json)
-  --format, -f       terminal (default) | json | html
-  --budget           Max API spend for this run (e.g. --budget $5.00)
+1. **Connect** — AgentDX spawns your MCP server and connects as a client (same as `agentdx dev`)
+2. **Discover** — Lists all tools, their descriptions, and schemas
+3. **Generate scenarios** (or load from file) — Creates realistic task descriptions that a user might ask an agent
+4. **Evaluate** — For each scenario, sends the tools + task to an LLM and measures:
+   - Did it select the correct tool(s)?
+   - Did it fill parameters correctly?
+   - Did it handle ambiguous cases gracefully?
+   - Did it recover from errors?
+5. **Score** — Produces the Agent DX Score (0–100) with detailed breakdown
 
-Examples:
-  agentdx bench
-  agentdx bench --runs 20 --model claude-opus-4-5-20250929
-  agentdx bench --compare .agentdx/benchmarks/v0.1.0.json
-  agentdx bench --format html -o report.html
-```
+### Scenario generation
 
-**Metrics Produced:**
-
-| Metric | Description |
-|---|---|
-| **Tool Selection Accuracy** | % of times the agent picked the correct tool(s) |
-| **Parameter Accuracy** | % of tool calls with fully correct parameters |
-| **First-Try Success Rate** | % of scenarios completed without retries |
-| **Avg Tool Calls per Task** | Efficiency measure — lower is better |
-| **Retry Rate** | How often the agent needed to retry after errors |
-| **Latency P50/P95** | Time from task start to completion |
-| **Error Recovery Rate** | % of errors the agent recovered from gracefully |
-| **Description Clarity Score** | LLM-evaluated quality of tool descriptions |
-| **Overall Agent DX Score** | Composite 0-100 score |
-
-**The Agent DX Score** is the headline metric. It combines all individual metrics into a single number that tells you: "How easy is it for an AI agent to use your tools?" A score above 85 means your server is production-ready. Below 60 means agents will struggle.
-
-**Comparison mode** (`--compare`) shows deltas between benchmark runs, so you can see if a schema change improved or degraded agent usability:
+By default, AgentDX auto-generates scenarios from your tool definitions. It uses an LLM to create realistic tasks:
 
 ```
-Agent DX Score: 78 → 84 (+6) ▲
-  Tool Selection:    92% → 95% (+3%)
-  Parameter Accuracy: 71% → 82% (+11%) ← biggest improvement
-  First-Try Success:  65% → 70% (+5%)
-  Retry Rate:         22% → 15% (-7%)
+Tool: get_weather(city: string, units?: "celsius" | "fahrenheit")
+Description: "Retrieve current weather conditions for a specified city"
+
+Auto-generated scenarios:
+  1. "What's the weather in Tokyo?" → should call get_weather({city: "Tokyo"})
+  2. "Temperature in Paris in Fahrenheit" → should call get_weather({city: "Paris", units: "fahrenheit"})
+  3. "How's the weather?" → should ask for clarification (no city provided)
+  4. "Weather in NYC and London" → should call get_weather twice or explain limitation
 ```
 
----
+Custom scenarios can be defined in a YAML file:
 
-### 3.6 `agentdx publish`
-
-Publishes your MCP server to the AgentDX registry.
-
-```
-agentdx publish
-
-Options:
-  --registry         Registry URL (default: from config)
-  --tag              Version tag (default: from package.json)
-  --visibility       public | unlisted | private
-  --dry-run          Validate without publishing
-  --force            Skip confirmation prompts
-  --include-bench    Include latest benchmark results in listing
-
-Examples:
-  agentdx publish
-  agentdx publish --dry-run
-  agentdx publish --tag beta --visibility unlisted
-  agentdx publish --include-bench
-```
-
-**What it does:**
-
-1. Runs `agentdx lint` — publishing fails if there are errors
-2. Runs `agentdx test --all` — publishing fails if tests fail
-3. Packages server code + schemas + metadata
-4. Generates auto-documentation from tool schemas
-5. Creates compatibility matrix (which clients this server has been tested with)
-6. Uploads to registry with quality scores from latest benchmark
-7. Updates README with registry badge and quality score
-
-**Registry Listing includes:**
-- Server name, description, version, author
-- Full tool/resource/prompt documentation (auto-generated from schemas)
-- Agent DX Score and individual metrics
-- Compatibility matrix (Claude Code, OpenClaw, Cursor, etc.)
-- Install command (`agentdx install <name>` or `npx`)
-- Download stats, GitHub stars (if linked)
-- Version history with benchmark comparisons
-
----
-
-### 3.7 `agentdx doctor`
-
-Diagnoses problems with your MCP server setup.
-
-```
-agentdx doctor [entrypoint]
-
-Options:
-  --fix              Attempt to auto-fix found issues
-  --verbose, -v      Show detailed diagnostic output
-
-Examples:
-  agentdx doctor
-  agentdx doctor --fix
+```yaml
+# bench/scenarios.yaml
+scenarios:
+  - task: "What's the weather in Tokyo?"
+    expect:
+      tool: get_weather
+      params:
+        city: "Tokyo"
+    
+  - task: "Compare weather in Rome and Paris"
+    expect:
+      tools: [get_weather, get_weather]
+      description: "Should call get_weather for both cities"
+    
+  - task: "Will it rain tomorrow in Berlin?"
+    expect:
+      tool: get_forecast
+      params:
+        city: "Berlin"
+    tags: [disambiguation]  # tests if LLM picks forecast over current weather
+    
+  - task: "Set the temperature to 25 degrees"
+    expect:
+      tool: none
+      description: "Should refuse — no tool can set temperature"
+    tags: [negative]
 ```
 
-**Checks:**
-- Node/Python version compatibility
-- Dependencies installed and up to date
-- MCP SDK version matches spec version
-- Server starts without errors
-- All tools register correctly
-- Transport is configured properly
-- Auth is set up (if applicable)
-- Config file is valid
-- Test scenarios parse correctly
-- Registry credentials (if publishing)
+### Evaluation dimensions
 
----
+#### 4.1 Tool Selection Accuracy
 
-### 3.8 `agentdx install`
+Can the LLM pick the right tool for a given task?
 
-Installs an MCP server from the registry or configures it for a client.
+- **Correct selection**: LLM chooses the expected tool
+- **Partial selection**: LLM chooses a related but suboptimal tool
+- **Wrong selection**: LLM chooses an unrelated tool
+- **Hallucination**: LLM invents a tool that doesn't exist
+- **Correct refusal**: Task has no matching tool, LLM correctly says so
 
-```
-agentdx install <server-name>
+#### 4.2 Parameter Accuracy
 
-Options:
-  --client           Target client: claude-code | claude-desktop | cursor | openclaw
-  --global           Install globally
-  --config-only      Just add to mcp.json, don't install package
+Does the LLM fill in parameters correctly?
 
-Examples:
-  agentdx install @agentdx/github
-  agentdx install @agentdx/postgres --client claude-code
-  agentdx install my-private-server --client openclaw
-```
+- **All required params present**: No missing required fields
+- **Correct types**: String for string, number for number, etc.
+- **Correct values**: Enum values match, formats are right
+- **Optional params**: Used when beneficial, omitted when irrelevant
 
-**What it does:**
-- Downloads the server package from the registry
-- Generates the correct configuration for the target client
-- Adds the entry to the client's `mcp.json` or equivalent config
-- Verifies the server works with `agentdx doctor`
+#### 4.3 Ambiguity Handling
 
-This is the "consumer" side of the tool — making it trivially easy to install well-tested MCP servers into any client.
+How does the LLM behave when the task is unclear?
 
----
+- **Asks for clarification** when task is vague (good)
+- **Makes reasonable assumption** with explanation (acceptable)
+- **Silently guesses wrong** (bad)
 
-### 3.9 `agentdx config`
+#### 4.4 Multi-tool Orchestration
 
-Manages AgentDX configuration and credentials.
+For servers with multiple tools, can the LLM compose them?
 
-```
-agentdx config
+- **Correct sequencing**: Calls tools in logical order
+- **Data passing**: Uses output of one tool as input to another
+- **Avoids redundancy**: Doesn't call the same tool unnecessarily
 
-Sub-commands:
-  agentdx config init          Create/reset agentdx.config.yaml
-  agentdx config set <key> <val>  Set a config value
-  agentdx config get <key>        Get a config value
-  agentdx config auth login       Authenticate with registry
-  agentdx config auth logout      Remove stored credentials
-  agentdx config auth whoami      Show current authenticated user
+#### 4.5 Error Recovery
 
-Examples:
-  agentdx config set test.provider openai
-  agentdx config set test.model gpt-4o
-  agentdx config auth login
-```
+When a tool returns an error, does the LLM:
 
----
+- **Retry with corrected params** (good)
+- **Try alternative tool** (good)
+- **Explain the error to the user** (acceptable)
+- **Silently fail or hallucinate** (bad)
 
-### 3.10 `agentdx upgrade`
+### The Agent DX Score
 
-Self-update command.
+The overall score (0–100) is a weighted composite:
 
-```
-agentdx upgrade
-
-Options:
-  --check            Just check for updates, don't install
-  --canary           Install latest canary build
-```
-
----
-
-## 4. The AgentDX Registry
-
-### 4.1 What It Is
-
-A searchable, quality-scored registry of MCP servers. Think npmjs.com but purpose-built for MCP, with agent-friendliness as a first-class concern.
-
-### 4.2 Key Differentiators from Existing Registries
-
-The official MCP Registry (launched September 2025) is a catalog — it lists servers. AgentDX Registry is a **quality layer**:
-
-- **Agent DX Scores** — every listed server has a quantitative "how well can agents use this?" score
-- **Verified testing** — servers published through AgentDX have passed automated agent simulation tests
-- **Benchmark history** — you can see how a server's quality has changed across versions
-- **Compatibility matrix** — which clients (Claude Code, OpenClaw, Cursor) each server has been verified with
-- **One-click install** — `agentdx install` configures the server for your specific client
-- **Private registries** — organizations can run their own instance for internal MCP servers
-
-### 4.3 Registry API (for Phase 2 agent coordination)
-
-```
-GET    /v1/servers                    # List/search servers
-GET    /v1/servers/:name              # Server details + scores
-GET    /v1/servers/:name/tools        # Tool schemas
-GET    /v1/servers/:name/bench        # Benchmark history
-POST   /v1/servers                    # Publish (authenticated)
-GET    /v1/servers/:name/compatibility # Client compatibility matrix
-GET    /v1/recommend?task=<desc>      # "Which server can do X?" (Phase 2)
-```
-
-The `/recommend` endpoint is the bridge to Phase 2. An orchestrating agent asks "I need to search a GitHub repository" and the registry responds with the best-scored server for that capability, along with connection instructions. This is how AgentDX evolves from developer tool to agent coordination infrastructure.
-
----
-
-## 5. Technology Stack
-
-### CLI
-
-| Component | Technology | Rationale |
+| Dimension | Weight | Description |
 |---|---|---|
-| Runtime | Node.js 22+ | MCP ecosystem is JS/TS-native. Same runtime as most MCP servers. |
-| CLI Framework | Commander.js + Ink (React for CLI) | Commander for arg parsing, Ink for rich terminal UI in dev/bench |
-| MCP Client | `@modelcontextprotocol/sdk` | Official SDK, always spec-current |
-| LLM Calls | Anthropic SDK (primary), OpenAI SDK, Ollama REST | Pluggable via LLM Adapter |
-| Schema Validation | Ajv (JSON Schema) | Industry standard, fast |
-| File Watching | chokidar | For `agentdx dev --watch` |
-| Testing | Vitest | For AgentDX's own tests |
-| Build | tsup | Fast TypeScript bundler |
-| Package | npm (published as `agentdx`) | Largest reach |
+| Tool Selection | 35% | Right tool for the job |
+| Parameter Accuracy | 30% | Correct inputs |
+| Ambiguity Handling | 15% | Graceful with unclear tasks |
+| Multi-tool | 10% | Orchestration and composition |
+| Error Recovery | 10% | Resilience to failures |
 
-### Registry
+Score bands:
 
-| Component | Technology | Rationale |
+| Score | Rating | Meaning |
 |---|---|---|
-| API | Hono on Cloudflare Workers | Fast, cheap, scales globally |
-| Database | Cloudflare D1 (SQLite) | Metadata, scores, users |
-| Package Storage | Cloudflare R2 | Server packages, benchmarks |
-| Search | Meilisearch (hosted) | Fast full-text search over tool descriptions |
-| Auth | GitHub OAuth | Standard for developer tools |
-| Frontend | Astro + React | Static site with interactive search |
+| 90–100 | Excellent | LLMs reliably use this server |
+| 75–89 | Good | Works well with minor confusion |
+| 50–74 | Needs work | LLMs frequently misuse tools |
+| 0–49 | Poor | LLMs struggle to use this server |
+
+### Output format
+
+```
+$ agentdx bench
+
+  AgentDX Bench — my-weather-server (5 tools, 18 scenarios)
+
+  Running with claude-sonnet-4-5-20250514 (3 runs per scenario)...
+
+  Tool Selection     ████████████████████░░  92%  (17/18 correct)
+  Parameter Accuracy ██████████████░░░░░░░░  68%  (units param confused in 4 cases)
+  Ambiguity Handling ████████████████░░░░░░  78%  (asked for clarification 7/9 times)
+  Multi-tool         ████████████████████░░  90%  (correct sequencing)
+  Error Recovery     ██████████░░░░░░░░░░░░  50%  (LLM didn't understand error format)
+
+  ┌─────────────────────────────────┐
+  │  Agent DX Score:  78 / 100      │
+  │  Rating: Good                   │
+  └─────────────────────────────────┘
+
+  Top issues:
+  1. get_weather "units" param: no default specified, LLM omits it 60% of the time
+     → Fix: add default "celsius" to schema
+  2. Error responses are plain strings, LLM can't parse failure reason
+     → Fix: return structured errors { code, message, suggestion }
+  3. get_forecast vs get_weather: descriptions too similar
+     → Fix: add time range to get_forecast description
+
+  Full report: .agentdx/bench-report-2026-02-17.json
+```
+
+### Machine-readable output
+
+```bash
+agentdx bench --format json > bench-results.json
+```
+
+The JSON report includes every scenario, every LLM response, and per-tool breakdowns.
+
+### LLM Provider Configuration
+
+```bash
+# Anthropic (default)
+export ANTHROPIC_API_KEY=sk-ant-...
+agentdx bench
+
+# OpenAI
+agentdx bench --provider openai --model gpt-4o
+# requires OPENAI_API_KEY
+
+# Ollama (local, free)
+agentdx bench --provider ollama --model llama3.2
+# requires Ollama running locally
+
+# Multiple models comparison
+agentdx bench --provider anthropic --model claude-sonnet-4-5-20250514
+agentdx bench --provider openai --model gpt-4o
+# compare results to see which LLM works best with your server
+```
+
+### Cost awareness
+
+AgentDX shows estimated cost before running:
+
+```
+This benchmark will run 18 scenarios × 3 runs = 54 LLM calls
+Estimated cost: ~$0.12 (claude-sonnet-4-5-20250514)
+Proceed? [Y/n]
+```
 
 ---
 
-## 6. Phased Roadmap
+## 5. `agentdx init` (utility — already built)
 
-### Phase 0: Foundation (Weeks 1–2)
+Interactive wizard that scaffolds a new MCP server project. Produces:
 
-**Goal:** Working CLI skeleton with `init` and `dev` commands.
+- `package.json` with MCP SDK dependency
+- `tsconfig.json` (strict, ESM)
+- `src/index.ts` — working server with example tool
+- `agentdx.config.yaml`
+- `README.md`
 
-**Deliverables:**
-- [ ] Project repo setup (TypeScript, tsup, Vitest, CI)
-- [ ] CLI skeleton with Commander.js, global help, version
-- [ ] `agentdx init` — interactive wizard + flag-based scaffolding
-  - TypeScript template with working stdio server
-  - Python template with working stdio server
-  - Generates `agentdx.config.yaml`
-  - Creates example tool with full schema
-- [ ] `agentdx dev` — spawns server, connects client, REPL
-  - `.tools`, `.call`, `.schema` commands work
-  - Hot-reload on file save
-  - `--verbose` shows raw JSON-RPC
-- [ ] `agentdx doctor` — basic diagnostics
-- [ ] README, LICENSE, contributing guide
-- [ ] Publish `agentdx@0.1.0-alpha` on npm
-
-**Milestone:** Developer can `npx agentdx init my-server && cd my-server && agentdx dev` and have a working MCP server in under 60 seconds.
+Not the core product. Kept as a convenience.
 
 ---
 
-### Phase 1: Quality Layer (Weeks 3–5)
+## 6. `agentdx dev` (utility — already built)
 
-**Goal:** Lint, test, and benchmark. This is where AgentDX becomes more than a scaffolding tool.
+Spawns MCP server locally with interactive REPL:
 
-**Deliverables:**
-- [ ] `agentdx lint` — full rule engine
-  - Spec compliance checks
-  - Description quality scoring (LLM-powered)
-  - `--fix` auto-correction
-  - JSON + SARIF output for CI/CD
-- [ ] `agentdx test` — agent simulation testing
-  - Scenario YAML format
-  - LLM adapter (Anthropic first, OpenAI second)
-  - Tool selection, parameter, and completion evaluation
-  - `--generate` auto-creates scenarios from schemas
-  - JUnit output for CI/CD
-- [ ] `agentdx bench` — quantitative benchmarking
-  - All metrics from §3.5
-  - Agent DX Score composite
-  - `--compare` delta reporting
-  - HTML report output
-- [ ] `.ask` command in `agentdx dev` — natural language → tool calls
-- [ ] `.export` command — convert REPL sessions to test scenarios
-- [ ] Publish `agentdx@0.2.0-alpha`
+- `.tools` — list tools
+- `.call <tool> <json>` — call a tool
+- `.schema <tool>` — show input schema
+- `.reconnect` — restart server
+- Hot-reload on file changes via chokidar
 
-**Milestone:** Developer can measure and improve how well agents use their tools with a single command.
+Not the core product. Useful during development.
 
 ---
 
-### Phase 2: Publishing & Registry (Weeks 6–9)
+## 7. CLI Reference
 
-**Goal:** The registry goes live. AgentDX becomes the quality standard for MCP servers.
+```
+agentdx <command> [options]
 
-**Deliverables:**
-- [ ] Registry API on Cloudflare Workers
-  - Package upload/download
-  - Quality score storage
-  - Search (Meilisearch)
-  - GitHub OAuth
-- [ ] Registry frontend
-  - Server listings with scores
-  - Tool schema browser
-  - Benchmark history graphs
-  - One-click install instructions
-- [ ] `agentdx publish` — full publishing workflow
-  - Lint + test gates
-  - Auto-documentation generation
-  - Compatibility matrix
-  - Version management
-- [ ] `agentdx install` — consumer install flow
-  - Claude Code, Claude Desktop, Cursor, OpenClaw support
-  - Auto-config generation
-- [ ] `agentdx config auth` — credential management
-- [ ] `--api` flag for `agentdx init` — OpenAPI → MCP server generation
-- [ ] Private registry support for organizations
-- [ ] Publish `agentdx@0.3.0-beta`
+Commands:
+  agentdx lint              Static analysis of MCP server tool quality
+  agentdx bench             LLM-based evaluation (produces Agent DX Score)
+  agentdx init [name]       Scaffold a new MCP server project
+  agentdx dev [entry]       Start dev server with interactive REPL
 
-**Milestone:** A developer publishes a server with `agentdx publish` and another developer installs it with `agentdx install` and it just works — quality-verified.
+Global options:
+  --verbose                 Show detailed output
+  --config <path>           Path to agentdx.config.yaml (default: auto-detect)
+  --help                    Show help
+  --version                 Show version
 
----
+Lint options:
+  --format <fmt>            Output format: text (default), json, sarif
+  --fix                     Auto-fix what's possible (add missing descriptions, etc.)
+  --rule <id>               Run only specific rule(s)
+  --severity <level>        Minimum severity to report: error, warn, info
 
-### Phase 3: Community & Polish (Weeks 10–13)
-
-**Goal:** Ecosystem growth. Make AgentDX the default tool mentioned in MCP tutorials.
-
-**Deliverables:**
-- [ ] Plugin system — custom lint rules, test generators, templates
-- [ ] Community templates in registry (api-wrapper, database, file-system, etc.)
-- [ ] `agentdx init --template` browsing and installation
-- [ ] CI/CD integrations
-  - GitHub Action: `agentdx-action` (lint + test + bench on PR)
-  - Pre-commit hook support
-- [ ] VS Code extension — inline lint warnings, test runner
-- [ ] Python scaffolding parity with TypeScript (FastMCP integration)
-- [ ] Landing page + documentation site
-- [ ] "Built with AgentDX" badge for READMEs
-- [ ] Content: blog posts, tutorials, "how to build your first MCP server in 5 minutes"
-- [ ] Publish `agentdx@1.0.0`
-
-**Milestone:** AgentDX appears in the official MCP docs as a recommended tool. 100+ servers published through the registry.
+Bench options:
+  --provider <name>         LLM provider: anthropic (default), openai, ollama
+  --model <name>            Model to use (default: claude-sonnet-4-5-20250514)
+  --scenarios <path>        Path to custom scenarios YAML file
+  --runs <n>                Runs per scenario (default: 3)
+  --format <fmt>            Output format: text (default), json
+  --no-confirm              Skip cost confirmation prompt
+  --temperature <n>         LLM temperature (default: 0)
+```
 
 ---
 
-### Phase 4: Bridge to Agent Coordination (Weeks 14–20)
+## 8. Auto-detection (Zero Config)
 
-**Goal:** The metadata AgentDX has accumulated becomes the foundation for multi-agent workflows. This is where Option B begins.
+AgentDX should work in any MCP server project without configuration. The auto-detection logic:
 
-**Deliverables:**
-- [ ] `/recommend` API endpoint — "which server can accomplish X?"
-- [ ] `agentdx compose` command — define multi-server workflows
-  - YAML format for chaining tools across servers
-  - Dependency resolution (server A's output feeds server B's input)
-  - Parallel execution where possible
-- [ ] Agent-to-agent protocol primitives
-  - Delegation: "I can't do X, but server Y can"
-  - Verification: "Server Y completed X, here's the proof"
-  - Fallback chains: "If Y fails, try Z"
-- [ ] Quality-based routing — automatically pick the highest-scored server for each capability
-- [ ] Dashboard for monitoring multi-server workflows
-- [ ] `agentdx orchestrate` command — run a composed workflow
+### Server entry point detection
 
-**Milestone:** An agent can say "I need to search GitHub, run tests, and post results to Slack" and AgentDX automatically discovers, connects, and orchestrates the three best-scored servers for those tasks.
+```
+Priority order:
+1. agentdx.config.yaml → server.entry
+2. CLI argument: agentdx lint src/my-server.ts
+3. package.json → "bin" field (first entry)
+4. package.json → "main" field
+5. src/index.ts → src/index.js → index.ts → index.js
+6. Fail with helpful error: "Could not find MCP server entry point"
+```
+
+### Server type detection
+
+```
+Priority order:
+1. agentdx.config.yaml → server.transport
+2. Scan entry file for StdioServerTransport → stdio
+3. Scan entry file for SSEServerTransport → sse
+4. Default: stdio
+```
+
+### Tool discovery
+
+AgentDX spawns the server and connects as an MCP client. It calls `tools/list` to discover all available tools, descriptions, and schemas. This is the source of truth — not static analysis of source code.
 
 ---
 
-## 7. Growth Strategy & Metrics
+## 9. Tech Stack
 
-### How to Get to 500 Servers in the Registry
-
-1. **Seed with auto-generated wrappers.** Use `agentdx init --api` to generate MCP servers for the top 50 public APIs (GitHub, Slack, Notion, Linear, Stripe, etc.). Publish them as `@agentdx/github`, `@agentdx/slack`, etc. This gives the registry immediate value.
-
-2. **Make every MCP tutorial use AgentDX.** Contribute PRs to the official MCP docs. Write tutorials. Answer StackOverflow questions. When someone asks "how do I build an MCP server?" the answer should involve `agentdx init`.
-
-3. **GitHub Action as Trojan horse.** The `agentdx-action` CI integration means every team that uses AgentDX for testing continues to use it. Their servers become publishable with one config change.
-
-4. **Agent DX Score as social proof.** Make the score badge a status symbol. Developers will want to improve their score, which means running `agentdx bench` more, which means deeper adoption.
-
-### Key Metrics to Track
-
-| Metric | Target (3 months) | Target (6 months) |
+| Layer | Choice | Rationale |
 |---|---|---|
-| npm weekly downloads | 2,000 | 15,000 |
-| GitHub stars | 1,000 | 5,000 |
-| Registered servers | 100 | 500 |
-| Monthly `agentdx test` runs | 5,000 | 50,000 |
-| Contributors | 20 | 50 |
-| Mentioned in MCP docs | yes | featured |
-
-### The Acquisition Signal
-
-The signal that makes Anthropic/OpenAI pay attention isn't downloads — it's **dependency**. When their ecosystem's quality depends on your tool, the conversation starts. The path:
-
-1. AgentDX becomes how quality MCP servers are built
-2. The registry becomes where agents discover capabilities
-3. The orchestration layer becomes how multi-agent workflows compose
-4. At that point, you're infrastructure — not optional
-
----
-
-## 8. Open Questions
-
-These are decisions to make during Phase 0–1, not blockers:
-
-1. **CLI name.** `agentdx` is clean but could conflict. Alternatives: `forge`, `mcp-forge`, `mcp-dx`, `toolsmith`. Need to check npm availability.
-
-2. **Free vs paid registry tiers.** Public servers free, private registries paid? Or fully free to maximize adoption?
-
-3. **Which LLM provider as default.** Anthropic is natural (they created MCP) but requiring an Anthropic API key limits adoption. Consider: free tier with a shared key for `lint --llm-score` and `test`, or Ollama as default for zero-cost local testing.
-
-4. **Relationship with official MCP Registry.** Complement it (AgentDX registry as quality layer on top) or compete (replace it)? Likely complement — publish to both.
-
-5. **Monorepo or separate repos.** CLI and registry could live together (simpler) or apart (cleaner separation). Start together, split if needed.
+| Language | TypeScript 5.x (strict, ESM) | MCP ecosystem is TS-native |
+| Runtime | Node.js 22+ | Required for MCP SDK |
+| CLI framework | Commander.js | Already implemented, lightweight |
+| Interactive prompts | @clack/prompts | Already implemented |
+| MCP connectivity | @modelcontextprotocol/sdk | Official SDK, Client class |
+| Schema validation | zod v4, Ajv | Validate tool schemas |
+| LLM (primary) | @anthropic-ai/sdk | Best MCP understanding |
+| LLM (secondary) | openai SDK | OpenAI + Ollama compatible |
+| Config | yaml | Parse agentdx.config.yaml |
+| Process management | execa | Spawn MCP servers |
+| File watching | chokidar | Dev command hot-reload |
+| Build | tsup | Fast ESM bundling |
+| Dev runner | tsx | Fast TS execution |
+| Test | Vitest | Unit + integration tests |
 
 ---
 
-*Last updated: February 16, 2026*
-*Status: Draft v1 — ready for implementation*
+## 10. Project Structure
+
+```
+agentdx/
+├── src/
+│   ├── cli/
+│   │   ├── index.ts              # CLI entry point (Commander)
+│   │   └── commands/
+│   │       ├── init.ts           # init command (utility)
+│   │       ├── dev.ts            # dev command (utility)
+│   │       ├── lint.ts           # lint command (core)
+│   │       └── bench.ts          # bench command (core)
+│   ├── core/
+│   │   ├── mcp-client.ts         # Shared: spawn server, connect, list tools
+│   │   ├── config.ts             # Load and validate agentdx.config.yaml
+│   │   ├── detect.ts             # Auto-detect entry point, transport
+│   │   └── types.ts              # Shared type definitions
+│   ├── lint/
+│   │   ├── engine.ts             # Lint rule engine
+│   │   ├── rules/
+│   │   │   ├── descriptions.ts   # Description quality rules
+│   │   │   ├── schemas.ts        # Schema validation rules
+│   │   │   ├── naming.ts         # Naming convention rules
+│   │   │   └── errors.ts         # Error handling rules
+│   │   ├── score.ts              # Calculate lint score
+│   │   └── formatters/
+│   │       ├── text.ts           # Terminal output
+│   │       ├── json.ts           # JSON output
+│   │       └── sarif.ts          # SARIF for GitHub Actions
+│   ├── bench/
+│   │   ├── engine.ts             # Bench orchestrator
+│   │   ├── scenarios/
+│   │   │   ├── generator.ts      # Auto-generate scenarios from tools
+│   │   │   └── loader.ts         # Load custom scenarios from YAML
+│   │   ├── evaluators/
+│   │   │   ├── tool-selection.ts  # Did LLM pick the right tool?
+│   │   │   ├── parameters.ts      # Did LLM fill params correctly?
+│   │   │   ├── ambiguity.ts       # How does LLM handle unclear tasks?
+│   │   │   ├── multi-tool.ts      # Can LLM compose multiple tools?
+│   │   │   └── error-recovery.ts  # Does LLM handle errors?
+│   │   ├── llm/
+│   │   │   ├── adapter.ts        # LLM provider abstraction
+│   │   │   ├── anthropic.ts      # Anthropic implementation
+│   │   │   ├── openai.ts         # OpenAI implementation
+│   │   │   └── ollama.ts         # Ollama implementation
+│   │   ├── score.ts              # Calculate Agent DX Score
+│   │   └── reporter.ts           # Format and display results
+│   └── shared/
+│       └── logger.ts             # Logging with --verbose support
+├── tests/
+│   ├── lint/
+│   │   └── rules/                # Unit tests for each lint rule
+│   ├── bench/
+│   │   ├── evaluators/           # Unit tests for evaluators
+│   │   └── scenarios/            # Test scenario generation
+│   └── cli/
+│       └── commands/             # Integration tests
+├── docs/
+│   ├── SPEC.md                   # This file
+│   └── ARCHITECTURE.md           # Technical architecture
+├── CLAUDE.md                     # Claude Code project memory
+├── package.json
+├── tsconfig.json
+├── tsup.config.ts
+└── agentdx.config.yaml           # (only for AgentDX's own config)
+```
+
+---
+
+## 11. Roadmap
+
+### Phase 0 — Foundation (done)
+- [x] CLI skeleton with Commander
+- [x] `agentdx init` — scaffold MCP server projects
+- [x] `agentdx dev` — REPL + hot-reload
+- [x] Published to npm as `agentdx`
+
+### Phase 1 — Lint (next)
+- [ ] Core shared module: spawn server, connect, list tools (`src/core/mcp-client.ts`)
+- [ ] Auto-detection: entry point, transport, tools
+- [ ] Lint rule engine with all rules from section 3
+- [ ] Text, JSON, SARIF output formatters
+- [ ] Lint score calculation
+- [ ] `agentdx lint` works zero-config in any MCP server project
+
+### Phase 2 — Bench
+- [ ] LLM adapter: Anthropic, OpenAI, Ollama
+- [ ] Scenario auto-generation from tool definitions
+- [ ] Custom scenario YAML loader
+- [ ] All 5 evaluators (tool selection, params, ambiguity, multi-tool, error recovery)
+- [ ] Agent DX Score calculation
+- [ ] Cost estimation + confirmation prompt
+- [ ] `agentdx bench` produces the score
+
+### Phase 3 — Polish & Share
+- [ ] GitHub Actions example in README
+- [ ] `--fix` for auto-fixable lint rules
+- [ ] Comparison mode: bench against multiple models
+- [ ] Beautiful terminal output (progress bars, color)
+- [ ] Landing page at agentdx.dev
+- [ ] Blog post / tweet thread announcing the DX Score concept
+- [ ] Submit to MCP community lists

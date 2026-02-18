@@ -1,35 +1,20 @@
----
-name: implement
-description: Implement a feature following AgentDX conventions. Checks spec, writes code, runs typecheck and tests.
----
+# Skill: /implement
 
-# Implement Feature: $ARGUMENTS
+## When to use
+When building a new lint rule, evaluator, or command feature.
 
-## Before Writing Code
+## Workflow
+1. Read docs/SPEC.md for the feature being implemented
+2. Read docs/ARCHITECTURE.md for structural constraints
+3. Check existing code in the relevant directory for patterns
+4. Implement the feature following existing patterns
+5. Write unit tests alongside (lint rules need fixture-based tests, evaluators need mock responses)
+6. Run `npm run typecheck` — must pass
+7. Run `npm test` — must pass
+8. If a lint rule: ensure it's registered in `src/lint/rules/index.ts`
+9. If an evaluator: ensure it's registered in the bench engine
 
-1. Check if this feature is described in `docs/SPEC.md` — find the relevant section
-2. Check if there's architecture guidance in `docs/ARCHITECTURE.md`
-3. Identify which `src/core/` module this belongs to
-4. Identify if a new CLI command is needed in `src/cli/commands/`
-
-## Implementation Rules
-
-- Core logic goes in `src/core/`. CLI formatting goes in `src/cli/`.
-- If this touches LLM calls, go through `src/core/llm-adapter/adapter.ts` interface
-- If this touches the MCP protocol, use the SDK client in `src/core/mcp-client/`
-- Export types/interfaces from the module, import them where needed
-- Write the implementation, then add or update tests in the corresponding test file
-
-## After Writing Code
-
-1. Run `npm run typecheck` — fix any type errors before proceeding
-2. Run the relevant test: `npx vitest run <path-to-test>`
-3. If a CLI command was added/changed, manually verify: `npx tsx src/cli/index.ts <command> --help`
-
-## Checklist Before Done
-
-- [ ] Core logic is in `src/core/`, not in CLI layer
-- [ ] No `any` types unless absolutely necessary (with a comment explaining why)
-- [ ] Errors are typed and have user-facing messages
-- [ ] Typecheck passes
-- [ ] Tests pass
+## Patterns
+- Lint rules: export a `LintRule` object with `id`, `name`, `defaultSeverity`, `run(tools, config) → LintResult[]`
+- Evaluators: export an `Evaluator` object with `dimension`, `weight`, `evaluate(scenarios, responses) → EvaluatorResult`
+- Both are pure functions — no side effects
