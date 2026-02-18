@@ -25,6 +25,9 @@ npm test
 
 # Type check
 npm run typecheck
+
+# Lint & format check
+npm run lint:code
 ```
 
 ## Project Structure
@@ -55,6 +58,8 @@ These boundaries are enforced by convention and code review:
 - **No classes** unless stateful — lint rules are plain functions
 - **TypeScript strict mode** — no `any`, no implicit returns
 - **Errors** — catch at command level, show human-readable message, exit with code
+- **ESLint** — typescript-eslint for static analysis
+- **Prettier** — single quotes, trailing commas, 100 char width
 
 ## How to Add a New Lint Rule
 
@@ -100,6 +105,7 @@ export const myNewRule: LintRule = {
 - Run `npm test` — all tests must pass
 - Run `npm run typecheck` — no type errors
 - Run `npm run build` — build must succeed
+- Run `npm run lint:code` — ESLint + Prettier must pass
 
 ### Commit messages
 
@@ -117,6 +123,7 @@ test: add tests for compatibility rules
 - [ ] Tests pass (`npm test`)
 - [ ] Type check clean (`npm run typecheck`)
 - [ ] Build succeeds (`npm run build`)
+- [ ] Lint & format clean (`npm run lint:code`)
 - [ ] No `console.log` left in production code
 - [ ] New features have tests
 - [ ] Breaking changes documented

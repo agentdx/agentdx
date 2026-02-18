@@ -225,6 +225,7 @@ npm install
 npm run build      # tsup → dist/
 npm test           # vitest
 npm run typecheck  # tsc --noEmit
+npm run lint:code  # eslint + prettier
 ```
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for development guidelines.
