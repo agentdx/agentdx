@@ -1,6 +1,6 @@
 {
   "name": "agentdx",
-  "version": "0.1.0-alpha.1",
+  "version": "0.2.0-alpha.1",
   "description": "The MCP developer toolkit. Scaffold, lint, test, benchmark, and publish MCP servers.",
   "keywords": [
     "mcp",
